@@ -1,0 +1,8 @@
+{
+  "name": "MIRA - Migrants' Intelligent Rights Assistant",
+  "description": "Empoderando vozes. Unindo vidas. MIRA é um ecossistema digital abrangente para migrantes em Portugal e na Europa, com comunidade segura, assistente de IA, hub de documentos legais e dashboard analítico.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

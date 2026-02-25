@@ -1,0 +1,246 @@
+
+import React, { useState, useEffect } from 'react';
+import Navigation from './components/Navigation';
+import CommunityView from './components/CommunityView';
+import AssistantView from './components/AssistantView';
+import DashboardView from './components/DashboardView';
+import { HomeView } from './components/HomeView';
+import { DocumentAssistant } from './components/DocumentAssistant';
+import { GamificationProfile } from './components/GamificationProfile';
+import { JobBoard } from './components/JobBoard';
+import { LearningHub } from './components/LearningHub';
+import { LocalServicesMap } from './components/LocalServicesMap';
+import { PrivacyPage } from './components/PrivacyPage';
+import { ConsentModal } from './components/ConsentModal';
+import { AuthScreen } from './components/AuthScreen';
+import { ViewType, DocumentTask, ChatSession, GeneratedDocument, User, NotificationPreferences, Course, CATEGORIES, Post } from './types';
+import { analytics } from './services/analyticsService';
+import { MIRA_LOGO } from './constants';
+import { Bell, X, Info, Bot, Globe, ChevronDown, LayoutDashboard, LogOut, Sparkles, MessageCircle, ArrowLeft } from 'lucide-react';
+import { t } from './utils/translations';
+
+const INITIAL_NOTIFS: NotificationPreferences = {
+  OFFICIAL_AIMA: true,
+  LEGAL_CHANGES: true,
+  DOC_EXPIRATION: true,
+  JOB_MATCHES: true,
+  COMMUNITY_REPUTATION: true,
+  MAP_URGENCY: true,
+  MIRA_INSIGHTS: true,
+  SOCIAL_CONNECT: true
+};
+
+const INITIAL_COURSES: Course[] = [
+  {
+    id: 'c1',
+    title: 'Português Língua de Acolhimento (AAEIF 2026)',
+    description: 'Curso certificado para fins de residência e cidadania em 2026.',
+    category: CATEGORIES.EDUCATION,
+    type: 'Presencial / Online',
+    duration: '60h',
+    image: 'https://images.unsplash.com/photo-1544652478-6653e09f18a2?w=800&q=80'
+  },
+  {
+    id: 'c2',
+    title: 'Inglês para Integração Europeia 2026',
+    description: 'Melhore as suas oportunidades no mercado europeu com este curso intensivo.',
+    category: CATEGORIES.EDUCATION,
+    type: 'Online',
+    duration: '40h',
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80'
+  }
+];
+
+const COMMUNITY_STARTING_POSTS: Post[] = [
+  {
+    id: '1',
+    authorId: 'a1',
+    authorName: 'Guia de Portugal',
+    authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+    authorBio: 'Especialista em documentação AIMA 2026.',
+    title: 'NIF em 24h em 2026: Guia Rápido',
+    content: 'O processo digital de 2026 mudou tudo. Agora basta fazer o upload do Passaporte e o NIF sai no dia seguinte pelo portal MIRA-GOV. Já testaram?',
+    category: 'Documentos & Regularização',
+    backgroundImage: 'https://images.unsplash.com/photo-1583922606661-0822ed0bd916?w=800&q=80',
+    tags: ['NIF', '2026', 'Portugal'],
+    likes: 842,
+    comments: [{ id: 'c1', authorId: 'u2', authorName: 'Carlos M.', authorAvatar: 'https://i.pravatar.cc/150?u=carlos', content: 'Incrível! Já vou fazer o meu.', timestamp: '1h', likes: 12 }],
+    isVerified: true,
+    isFraudWarning: false,
+    location: 'Lisboa, Portugal',
+    timestamp: '45 min',
+    reports: 0,
+    urgency: 1,
+    validationStatus: "validated",
+    usefulVotes: 156,
+    fakeVotes: 0,
+    reviewVotes: 5
+  }
+];
+
+const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [currentView, setCurrentView] = useState<ViewType>(ViewType.HOME);
+  const [showConsent, setShowConsent] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [language, setLanguage] = useState('PT');
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  
+  const [tasks, setTasks] = useState<DocumentTask[]>([]);
+  const [chatSessions] = useState<ChatSession[]>([]);
+  const [docDrafts, setDocDrafts] = useState<any[]>([]);
+  const [docHistory, setDocHistory] = useState<GeneratedDocument[]>([]);
+  const [savedPostsIds, setSavedPostsIds] = useState<Set<string>>(new Set());
+  const [courses, setCourses] = useState<Course[]>(INITIAL_COURSES);
+  const [masterPosts, setMasterPosts] = useState<Post[]>(COMMUNITY_STARTING_POSTS);
+
+  useEffect(() => {
+    // Auto-login disabled for testing purposes as requested
+    /*
+    const savedUser = localStorage.getItem('mira_user');
+    if (savedUser) {
+      const u = JSON.parse(savedUser);
+      setUser(u);
+      if(u.role === 'admin') setCurrentView(ViewType.DASHBOARD);
+      const consentGiven = localStorage.getItem('mira_consent_given');
+      if (u.role !== 'admin' && consentGiven !== 'true') setShowConsent(true);
+    }
+    */
+    const savedIds = localStorage.getItem('mira_saved_posts');
+    if (savedIds) setSavedPostsIds(new Set(JSON.parse(savedIds)));
+    const savedCourses = localStorage.getItem('mira_courses');
+    if (savedCourses) setCourses(JSON.parse(savedCourses));
+  }, []);
+
+  const handleLogin = (newUser: User) => {
+    setUser(newUser);
+    localStorage.setItem('mira_user', JSON.stringify(newUser));
+    if(newUser.role === 'admin') setCurrentView(ViewType.DASHBOARD);
+    else {
+      const consentGiven = localStorage.getItem('mira_consent_given');
+      if (consentGiven !== 'true') setShowConsent(true);
+    }
+  };
+
+  const handleLogoutAction = () => {
+      setUser(null);
+      localStorage.removeItem('mira_user');
+      setCurrentView(ViewType.HOME);
+  };
+
+  const handleToggleSavePost = (postId: string) => {
+    const newSet = new Set(savedPostsIds);
+    if (newSet.has(postId)) newSet.delete(postId);
+    else { newSet.add(postId); analytics.track('vote_cast', user?.id || 'anon', 'SavePost', { postId }); }
+    setSavedPostsIds(newSet);
+    localStorage.setItem('mira_saved_posts', JSON.stringify(Array.from(newSet)));
+  };
+
+  const handleAddCourse = (course: Course) => {
+      const updated = [course, ...courses];
+      setCourses(updated);
+      localStorage.setItem('mira_courses', JSON.stringify(updated));
+  };
+
+  const handleAcceptConsent = () => {
+    localStorage.setItem('mira_consent_given', 'true');
+    setShowConsent(false);
+  };
+
+  const renderView = () => {
+    if (!user) return null;
+    const lowerLang = language.toLowerCase().substring(0, 2);
+    switch (currentView) {
+      case ViewType.HOME: return <HomeView user={user} onViewChange={setCurrentView} language={language} onLogout={handleLogoutAction} />;
+      case ViewType.COMMUNITY: return <CommunityView language={language} user={user} onViewChange={setCurrentView} onEarnPoints={setPoints} masterPosts={masterPosts} setMasterPosts={setMasterPosts} savedPostsIds={savedPostsIds} onToggleSavePost={handleToggleSavePost} />;
+      case ViewType.ASSISTANT: return <AssistantView language={language} />;
+      case ViewType.JOBS: return <JobBoard language={language} isAdmin={user.role === 'admin'} />;
+      case ViewType.MAP: return <LocalServicesMap language={language} />;
+      case ViewType.LEARNING: return <LearningHub courses={courses} onNavigateToChat={() => setCurrentView(ViewType.ASSISTANT)} onEarnPoints={() => {}} onNavigateToContact={() => {}} language={language} />;
+      case ViewType.DOCUMENTS: return <DocumentAssistant tasks={tasks} chatSessions={chatSessions} drafts={docDrafts} setDrafts={setDocDrafts} history={docHistory} addToHistory={(doc) => setDocHistory([doc, ...docHistory])} onOpenSession={() => {}} language={language} onEarnPoints={() => {}} onToggleTask={() => {}} onViewChange={setCurrentView} />;
+      case ViewType.PROFILE: return <GamificationProfile user={user} onUpdateUser={setUser} helps={14} impact={342 + points} badges={['Resiliente']} activitiesCount={142} savedCount={savedPostsIds.size} followingCount={56} language={lowerLang} onNavigateToPost={() => setCurrentView(ViewType.COMMUNITY)} onViewChange={setCurrentView} savedPosts={masterPosts.filter(p => savedPostsIds.has(p.id))} />;
+      case ViewType.DASHBOARD: return <DashboardView masterPosts={masterPosts} onUpdatePosts={setMasterPosts} totalOfficialDocs={6} onAddCourse={handleAddCourse} onLogout={handleLogoutAction} onDeleteAllUsers={() => {
+          // In a real app, this would call an API. Here we simulate by clearing local storage and resetting state
+          localStorage.removeItem('mira_user');
+          localStorage.removeItem('mira_consent_given');
+          alert("Base de dados de utilizadores limpa com sucesso (Simulação).");
+      }} />;
+      case ViewType.PRIVACY: return <PrivacyPage />;
+      default: return <HomeView user={user} onViewChange={setCurrentView} language={language} />;
+    }
+  };
+
+  if (!user) return <AuthScreen onLogin={handleLogin} language={language} setLanguage={setLanguage} />;
+
+  const isAdmin = user.role === 'admin';
+
+  return (
+    <div className={`min-h-screen ${isAdmin ? 'bg-slate-950' : 'bg-white md:bg-slate-50'} flex flex-col md:flex-row font-['Plus_Jakarta_Sans'] overflow-hidden`}>
+      {showConsent && <ConsentModal onAccept={handleAcceptConsent} onDecline={() => setShowConsent(false)} />}
+      
+      <header className={`${isAdmin ? 'bg-slate-900 border-white/5 shadow-2xl' : 'bg-white/95 border-b shadow-sm'} backdrop-blur-md sticky top-0 z-[150] px-6 py-4 flex items-center justify-between transition-all duration-300`}>
+        <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setCurrentView(isAdmin ? ViewType.DASHBOARD : ViewType.HOME)}>
+          <div className="w-10 h-10 shadow-glow transition-transform group-hover:scale-110">{MIRA_LOGO}</div>
+          <span className={`${isAdmin ? 'text-white' : 'text-slate-900'} font-black tracking-tighter text-2xl`}>MIRA</span>
+        </div>
+        
+        <div className="flex items-center gap-6">
+          {!isAdmin && currentView !== ViewType.HOME && (
+            <button 
+              onClick={() => setCurrentView(ViewType.HOME)} 
+              className={`p-2.5 rounded-2xl flex items-center gap-2 transition-all ${isAdmin ? 'bg-slate-800 text-white' : 'bg-slate-50 text-slate-400 hover:text-mira-orange hover:bg-mira-orange-pastel'}`}
+              title="Voltar para Início"
+            >
+              <ArrowLeft size={18} />
+            </button>
+          )}
+          {isAdmin && currentView !== ViewType.DASHBOARD && (
+            <button onClick={() => setCurrentView(ViewType.DASHBOARD)} className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all"><LayoutDashboard size={16} /> AdminHub</button>
+          )}
+          <div className="relative ml-2">
+              <button onClick={() => setShowLangMenu(!showLangMenu)} className={`p-2.5 rounded-2xl flex items-center gap-2 transition-all ${isAdmin ? 'bg-slate-800 text-white' : 'bg-slate-50 text-slate-400'}`}>
+                <Globe size={18} /><span className="text-[10px] font-black">{language}</span><ChevronDown size={12} className={showLangMenu ? 'rotate-180' : ''} />
+              </button>
+              {showLangMenu && (
+                  <div className="absolute top-full right-0 mt-3 w-32 bg-white rounded-2xl shadow-2xl border p-2 z-[200] animate-in slide-in-from-top-2">
+                      {['PT', 'EN', 'ES', 'FR'].map(l => <button key={l} onClick={() => { setLanguage(l); setShowLangMenu(false); }} className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${language === l ? 'bg-mira-orange text-white' : 'text-slate-600 hover:bg-slate-50'}`}>{l}</button>)}
+                  </div>
+              )}
+          </div>
+          <button onClick={handleLogoutAction} className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-sm ${isAdmin ? 'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white' : 'bg-white text-red-500 border border-red-50 hover:bg-red-50'}`} title="Sair da Plataforma">
+            <LogOut size={16} /><span className="hidden sm:inline">Sair</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Floating Chat Mira Button - ORANGE BLINKING ICON as requested */}
+      {!isAdmin && currentView !== ViewType.ASSISTANT && (
+          <button 
+            onClick={() => setCurrentView(ViewType.ASSISTANT)}
+            className="fixed bottom-28 right-6 z-[250] w-16 h-16 bg-gradient-to-br from-mira-orange via-orange-500 to-red-600 text-white rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-all hover:scale-110 group animate-mira-blink"
+          >
+              <Bot size={32} className="text-white group-hover:rotate-12 transition-transform" />
+              <div className="absolute -top-1 -right-1 bg-white p-1 rounded-full shadow-sm animate-pulse"><Sparkles size={12} className="text-mira-yellow fill-mira-yellow" /></div>
+              <div className="absolute right-20 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-2xl">Dúvidas? Pergunte ao MIRA</div>
+          </button>
+      )}
+
+      <div className={`fixed bottom-0 left-0 right-0 z-[200] md:relative md:bottom-auto transition-transform duration-300`}>
+        <Navigation currentView={currentView} onViewChange={setCurrentView} language={language} />
+      </div>
+
+      <main className="flex-1 md:ml-24 overflow-hidden flex flex-col h-[calc(100vh-64px)] md:h-screen">
+          <div className="flex-1 overflow-y-auto no-scrollbar">
+            <div className="max-w-5xl mx-auto h-full relative">{renderView()}</div>
+          </div>
+      </main>
+
+      <style>{`
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-bounce-slow { animation: bounce-slow 4s infinite ease-in-out; }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;
