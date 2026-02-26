@@ -15,6 +15,7 @@ import { ConsentModal } from './components/ConsentModal';
 import { AuthScreen } from './components/AuthScreen';
 import { ViewType, DocumentTask, ChatSession, GeneratedDocument, User, NotificationPreferences, Course, CATEGORIES, Post } from './types';
 import { analytics } from './services/analyticsService';
+import { communityService } from './services/communityService';
 import { MIRA_LOGO } from './constants';
 import { Bell, X, Info, Bot, Globe, ChevronDown, LayoutDashboard, LogOut, Sparkles, MessageCircle, ArrowLeft } from 'lucide-react';
 import { t } from './utils/translations';
@@ -107,6 +108,17 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('mira_community_posts', JSON.stringify(masterPosts));
   }, [masterPosts]);
+
+  // DB Sync for Posts
+  useEffect(() => {
+    if (user && user.id) {
+      communityService.fetchPosts().then(dbPosts => {
+        if (dbPosts && dbPosts.length > 0) {
+          setMasterPosts(dbPosts);
+        }
+      });
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {

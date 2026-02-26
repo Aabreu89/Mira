@@ -11,6 +11,7 @@ import { Post, UNIFIED_CATEGORIES, User, UnifiedCategory, Comment, ViewType } fr
 import { autoTranslateText, generateSpeech } from '../services/geminiService';
 import { t } from '../utils/translations';
 import { analytics } from '../services/analyticsService';
+import { communityService } from '../services/communityService';
 
 // Audio & Translation Helpers
 const translationCache: Record<string, string> = {};
@@ -205,10 +206,12 @@ const CommunityView: React.FC<CommunityViewProps> = ({
     return result;
   }, [activeCategory, masterPosts, searchFilter]);
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!newPostContent.trim() || !selectedCategory) return;
+
+    const tempId = Date.now().toString();
     const newPost: Post = {
-      id: Date.now().toString(),
+      id: tempId,
       authorId: user.id,
       authorName: user.name,
       authorAvatar: user.avatar || '',
@@ -220,7 +223,7 @@ const CommunityView: React.FC<CommunityViewProps> = ({
       comments: [],
       isVerified: false,
       isFraudWarning: false,
-      timestamp: 'Agora',
+      timestamp: 'Agora mesmo',
       reports: 0,
       urgency: 0,
       validationStatus: 'pending',
@@ -229,51 +232,91 @@ const CommunityView: React.FC<CommunityViewProps> = ({
       reviewVotes: 0,
       backgroundImage: selectedImage
     };
+
+    // Optimistic UI updates
     setMasterPosts([newPost, ...masterPosts]);
     setShowCreateModal(false);
     setNewPostContent('');
     setSelectedCategory('');
     onEarnPoints(10);
     analytics.track('post_created', user.id, selectedCategory);
+
+    try {
+      // Real DB logic
+      const savedDbPost = await communityService.createPost({
+        authorId: user.id,
+        title: newPost.title,
+        content: newPost.content,
+        category: newPost.category,
+        backgroundImage: newPost.backgroundImage
+      });
+
+      // Update the temporary ID with real DB ID
+      if (savedDbPost) {
+        setMasterPosts(prev => prev.map(p => p.id === tempId ? { ...p, id: savedDbPost.id } : p));
+      }
+    } catch (e) {
+      console.error('Failed to save real post:', e);
+    }
   };
 
-  const handleLike = (postId: string, commentId?: string) => {
+  const handleLike = async (postId: string, commentId?: string) => {
     const isLiked = commentId ? likedComments.has(commentId) : likedPosts.has(postId);
     if (isLiked) return;
+
     setMasterPosts(prev => prev.map(p => {
       if (p.id !== postId) return p;
       if (!commentId) return { ...p, likes: p.likes + 1 };
       return { ...p, comments: p.comments.map(c => c.id === commentId ? { ...c, likes: c.likes + 1 } : c) };
     }));
-    if (commentId) setLikedComments(prev => new Set(prev).add(commentId));
-    else setLikedPosts(prev => new Set(prev).add(postId));
+
+    if (commentId) {
+      setLikedComments(prev => new Set(prev).add(commentId));
+    } else {
+      setLikedPosts(prev => new Set(prev).add(postId));
+      // background Sync
+      try {
+        await communityService.voteOrLike(postId, user.id, 'like');
+      } catch (e) { }
+    }
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (!newComment.trim() || !commentingOn) return;
+
+    const finalContent = commentingOn.replyToName ? `@${commentingOn.replyToName} ${newComment}` : newComment;
+
     const comment: Comment = {
       id: Date.now().toString(),
       authorId: user.id,
       authorName: user.name,
       authorAvatar: user.avatar,
-      content: commentingOn.replyToName ? `@${commentingOn.replyToName} ${newComment}` : newComment,
-      timestamp: 'Agora',
+      content: finalContent,
+      timestamp: 'Agora mesmo',
       likes: 0
     };
+
+    const backupPostId = commentingOn.postId;
     setMasterPosts(prev => prev.map(p => {
-      if (p.id !== commentingOn.postId) return p;
+      if (p.id !== backupPostId) return p;
       return { ...p, comments: [...p.comments, comment] };
     }));
+
     setCommentingOn(null);
     setNewComment('');
     onEarnPoints(2);
     analytics.track('comment_created', user.id);
+
+    try {
+      await communityService.createComment(backupPostId, user.id, finalContent);
+    } catch (error) { }
   };
 
-  const handleFactVote = (postId: string, isTrue: boolean) => {
+  const handleFactVote = async (postId: string, isTrue: boolean) => {
     const currentVote = userVotes[postId];
     const newVote = isTrue ? 'true' : 'false';
     if (currentVote === newVote) return;
+
     setMasterPosts(prev => prev.map(p => {
       if (p.id !== postId) return p;
       let useful = p.usefulVotes;
@@ -284,8 +327,13 @@ const CommunityView: React.FC<CommunityViewProps> = ({
       if (newVote === 'false') fake++;
       return { ...p, usefulVotes: useful, fakeVotes: fake };
     }));
+
     setUserVotes(prev => ({ ...prev, [postId]: newVote }));
     onEarnPoints(5);
+
+    try {
+      await communityService.voteOrLike(postId, user.id, isTrue ? 'useful' : 'fake');
+    } catch (e) { }
   };
 
   const handleReportSubmit = () => {
