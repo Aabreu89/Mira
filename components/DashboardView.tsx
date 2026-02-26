@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { generateAdvancedReport } from '../services/geminiService';
 import { analytics } from '../services/analyticsService';
+import { supabase } from '../lib/supabase';
 import { MIRA_LOGO, COLORS, OFFICIAL_SOURCES } from '../constants';
 import { Post, JobPost, WORK_TOPICS, UNIFIED_CATEGORIES, Course } from '../types';
 import { IEFP_MASSIVE_DATABASE } from '../utils/iefpCoursesDatabase';
@@ -39,6 +40,17 @@ const DashboardView: React.FC<DashboardViewProps> = ({ masterPosts, onUpdatePost
     const [isUpdatingJobs, setIsUpdatingJobs] = useState(false);
     const [isCreatingArticle, setIsCreatingArticle] = useState(false);
     const [isSyncingCourses, setIsSyncingCourses] = useState(false);
+    const [totalUsers, setTotalUsers] = useState<number | null>(null);
+
+    useEffect(() => {
+        const fetchUserCount = async () => {
+            const { count, error } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+            if (!error && count !== null) {
+                setTotalUsers(count);
+            }
+        };
+        fetchUserCount();
+    }, []);
 
     const [adminNotifs, setAdminNotifs] = useState({
         fraudAlerts: true,
@@ -272,7 +284,17 @@ const DashboardView: React.FC<DashboardViewProps> = ({ masterPosts, onUpdatePost
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="bg-slate-900 p-6 rounded-[2rem] border border-white/5 shadow-xl">
-                                <Users size={16} className="text-blue-400 mb-4" />
+                                <Users size={16} className="text-white mb-4" />
+                                <p className="text-[8px] font-black uppercase text-slate-500 mb-1">Total de Membros</p>
+                                <h3 className="text-2xl font-black text-white">{totalUsers !== null ? totalUsers : '...'}</h3>
+                            </div>
+                            <div className="bg-slate-900 p-6 rounded-[2rem] border border-white/5 shadow-xl">
+                                <FileText size={16} className="text-indigo-400 mb-4" />
+                                <p className="text-[8px] font-black uppercase text-slate-500 mb-1">Total de Posts</p>
+                                <h3 className="text-2xl font-black">{stats.totalPosts}</h3>
+                            </div>
+                            <div className="bg-slate-900 p-6 rounded-[2rem] border border-white/5 shadow-xl">
+                                <Activity size={16} className="text-blue-400 mb-4" />
                                 <p className="text-[8px] font-black uppercase text-slate-500 mb-1">Acessos App</p>
                                 <h3 className="text-2xl font-black">{stats.appAccesses}</h3>
                             </div>

@@ -1,0 +1,20 @@
+[
+  {
+    "policyname": "profiles: insert",
+    "qual": null,
+    "with_check": "(auth.uid() = id)",
+    "cmd": "INSERT"
+  },
+  {
+    "policyname": "profiles: select",
+    "qual": "true",
+    "with_check": null,
+    "cmd": "SELECT"
+  },
+  {
+    "policyname": "profiles: update",
+    "qual": "(( SELECT auth.uid() AS uid) = id)",
+    "with_check": null,
+    "cmd": "UPDATE"
+  }
+]

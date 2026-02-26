@@ -1,0 +1,13 @@
+﻿User id: aa729319-6c32-414c-aeb0-256a80682197
+Profile result: {
+  "error": {
+    "code": "42P17",
+    "details": null,
+    "hint": null,
+    "message": "infinite recursion detected in policy for relation \"profiles\""
+  },
+  "data": null,
+  "count": null,
+  "status": 500,
+  "statusText": "Internal Server Error"
+}
