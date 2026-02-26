@@ -23,7 +23,18 @@
         "./*"
       ]
     },
-    "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": [
+    "components/**/*",
+    "lib/**/*",
+    "services/**/*",
+    "utils/**/*",
+    "App.tsx",
+    "index.tsx",
+    "types.ts",
+    "constants.tsx",
+    "*.ts",
+    "vite-env.d.ts"
+  ]
 }
