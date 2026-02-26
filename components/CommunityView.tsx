@@ -152,22 +152,16 @@ interface CommunityViewProps {
 }
 
 const THEMED_IMAGES = [
-  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
-  'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80',
-  'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80',
-  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80',
-  'https://images.unsplash.com/photo-1523240795612-9a054db0db644?w=800&q=80',
-  'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?w=800&q=80',
-  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80',
-  'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80',
-  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
-  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
-  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80',
-  'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80',
-  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80',
-  'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=80',
-  'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&q=80'
+  'https://images.unsplash.com/photo-1557683316-973673baf926?w=800&q=80', // Gradient mesh
+  'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80', // Gradient colors
+  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80', // Liquid abstract
+  'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=800&q=80', // Dark neon geometric
+  'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&q=80', // Abstract art
+  'https://images.unsplash.com/photo-1506744626753-2fea904ca38f?w=800&q=80', // Nature moody
+  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Mountain night
+  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80', // Tech Earth
 ];
+
 
 const CommunityView: React.FC<CommunityViewProps> = ({
   language, user, onViewChange, onEarnPoints, masterPosts, setMasterPosts, savedPostsIds, onToggleSavePost
@@ -196,6 +190,22 @@ const CommunityView: React.FC<CommunityViewProps> = ({
       return scoreB - scoreA;
     }).slice(0, 10);
   }, [masterPosts]);
+
+  // Story Auto-Advance (Instagram style)
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (activeStory) {
+      timer = setTimeout(() => {
+        const currentIndex = topStories.findIndex(s => s.id === activeStory.id);
+        if (currentIndex !== -1 && currentIndex < topStories.length - 1) {
+          setActiveStory(topStories[currentIndex + 1]);
+        } else {
+          setActiveStory(null);
+        }
+      }, 5000); // 5 seconds per story
+    }
+    return () => clearTimeout(timer);
+  }, [activeStory, topStories]);
 
   const filteredPosts = useMemo(() => {
     let result = activeCategory === 'Todos' ? masterPosts : masterPosts.filter(p => p.category === activeCategory);
@@ -749,89 +759,71 @@ const CommunityView: React.FC<CommunityViewProps> = ({
               <button onClick={() => setShowCreateModal(false)} className="p-3 bg-slate-50 rounded-full hover:bg-slate-100 transition-all text-slate-500"><X size={20} /></button>
             </div>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar">
+            <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-8">
 
-              {/* LIVE PREVIEW AREA */}
-              <div className="relative h-64 sm:h-80 w-full shrink-0 overflow-hidden bg-slate-900 flex flex-col justify-center items-center text-center shadow-inner">
-                <img src={selectedImage} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" alt="Preview Fundo" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/60 backdrop-blur-[2px]"></div>
-                <div className="relative z-10 w-full px-8 py-6 mb-4 max-w-sm flex flex-col items-center justify-center mt-4">
-                  <span className="bg-mira-orange text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/20 mb-5 relative block">
-                    {selectedCategory || 'CATEGORIA DO POST'}
-                  </span>
-                  <p className={`font-black text-white leading-tight tracking-tight uppercase break-words drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] ${newPostContent.length < 80 ? 'text-2xl' : newPostContent.length < 160 ? 'text-lg' : 'text-sm'} transition-all`}>
-                    {newPostContent || 'COMO PODES AJUDAR A COMUNIDADE HOJE? DIGITE A MATÉRIA PARA VISUALIZAR AQUI.'}
-                  </p>
+              {/* Image Selection Grid */}
+              <div className="space-y-4 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 mb-4 shadow-inner">
+                <div className="flex items-center justify-between ml-2 mb-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2"><ImageIcon size={14} className="text-mira-blue" /> FUNDO DA PUBLICAÇÃO</label>
                 </div>
-              </div>
-
-              <div className="p-8 pt-8 space-y-10">
-
-                {/* Image Selection Carousel */}
-                <div className="space-y-4 relative -mt-4 bg-white p-6 rounded-[2.5rem] shadow-xl border border-slate-50 z-20">
-                  <div className="flex items-center justify-between ml-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2"><ImageIcon size={14} className="text-mira-blue" /> SELECIONAR IMAGEM</label>
-                    <span className="text-[8px] font-bold text-slate-300 uppercase">Deslize para ver mais</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 pb-2 px-2">
-                    {THEMED_IMAGES.map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedImage(img)}
-                        className={`w-full aspect-[3/4] rounded-2xl overflow-hidden border-4 transition-all relative mt-2 group ${selectedImage === img ? 'border-mira-blue scale-100 shadow-xl shadow-cyan-900/10 opacity-100 z-10' : 'border-transparent opacity-50 hover:opacity-100 scale-95'}`}
-                      >
-                        <img src={img} className="w-full h-full object-cover" alt={`Opção de fundo ${idx + 1}`} referrerPolicy="no-referrer" />
-                        {selectedImage === img && (
-                          <div className="absolute inset-0 bg-mira-blue/20 flex items-center justify-center backdrop-blur-sm">
-                            <div className="bg-white rounded-full p-2 shadow-2xl animate-in zoom-in">
-                              <CheckCircle2 size={24} className="text-mira-blue fill-white" />
-                            </div>
+                <div className="grid grid-cols-4 sm:grid-cols-4 gap-3 px-1">
+                  {THEMED_IMAGES.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImage(img)}
+                      className={`w-full aspect-square rounded-2xl overflow-hidden border-4 transition-all relative group ${selectedImage === img ? 'border-mira-blue scale-100 shadow-xl opacity-100 z-10' : 'border-transparent opacity-50 hover:opacity-100 scale-95'}`}
+                    >
+                      <img src={img} className="w-full h-full object-cover" alt={`Opção de fundo ${idx + 1}`} referrerPolicy="no-referrer" />
+                      {selectedImage === img && (
+                        <div className="absolute inset-0 bg-mira-blue/30 flex items-center justify-center backdrop-blur-[2px]">
+                          <div className="bg-white rounded-full p-1 shadow-lg animate-in zoom-in">
+                            <CheckCircle2 size={20} className="text-mira-blue fill-white" />
                           </div>
-                        )}
-                        {selectedImage !== img && (
-                          <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                        </div>
+                      )}
+                      {selectedImage !== img && (
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                      )}
+                    </button>
+                  ))}
                 </div>
-
-                {/* Category Selection */}
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                    <CheckCircle2 size={12} className={selectedCategory ? "text-mira-green" : "text-red-500"} /> 1. CATEGORIA
-                  </label>
-                  <select required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value as UnifiedCategory)} className={`w-full pl-6 pr-12 py-5 bg-slate-50 border-2 rounded-2xl text-xs font-black uppercase tracking-[0.1em] appearance-none outline-none focus:bg-white focus:border-mira-blue transition-all shadow-sm ${!selectedCategory ? 'border-red-50' : 'border-slate-100'}`}>
-                    <option value="">Selecione o tipo de conteúdo</option>
-                    {UNIFIED_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
-                </div>
-
-                {/* Post Message */}
-                <div className="space-y-4 pb-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                    <MessageCircle size={12} className={newPostContent.length > 5 ? "text-mira-green" : "text-red-500"} /> 2. MENSAGEM DO POST
-                  </label>
-                  <div className="relative">
-                    <textarea value={newPostContent} onChange={(e) => setNewPostContent(e.target.value)} className={`w-full h-44 p-6 bg-slate-50 border-2 rounded-[2rem] text-sm font-bold focus:bg-white focus:border-mira-blue transition-all shadow-inner outline-none resize-none leading-relaxed text-slate-800 ${newPostContent.length < 5 ? 'border-red-50' : 'border-slate-100'}`} placeholder="Escreva aqui de forma visível e resumida..." />
-                    <div className={`absolute bottom-4 right-6 text-[9px] font-black uppercase tracking-widest ${newPostContent.length > 250 ? 'text-red-500' : 'text-slate-400'}`}>
-                      {newPostContent.length} / 300
-                    </div>
-                  </div>
-                </div>
-
               </div>
-            </div>
 
-            {/* FOOTER ACTIONS */}
-            <div className="p-6 border-t border-slate-200 shrink-0 bg-slate-50 flex gap-4">
-              <button onClick={() => setShowCreateModal(false)} className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-colors">
-                Cancelar
-              </button>
-              <button onClick={handleCreatePost} disabled={!newPostContent.trim() || !selectedCategory} className="flex-1 bg-slate-900 hover:bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-3 shadow-2xl shadow-slate-900/20 active:scale-95 transition-all disabled:opacity-20 disabled:scale-100">
-                <Send size={18} /> Publicar na Rede
-              </button>
+              {/* Category Selection */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
+                  <CheckCircle2 size={12} className={selectedCategory ? "text-mira-green" : "text-red-500"} /> 1. CATEGORIA
+                </label>
+                <select required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value as UnifiedCategory)} className={`w-full pl-6 pr-12 py-5 bg-slate-50 border-2 rounded-2xl text-xs font-black uppercase tracking-[0.1em] appearance-none outline-none focus:bg-white focus:border-mira-blue transition-all shadow-sm ${!selectedCategory ? 'border-red-50' : 'border-slate-100'}`}>
+                  <option value="">Selecione o tipo de conteúdo</option>
+                  {UNIFIED_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
+              </div>
+
+              {/* Post Message */}
+              <div className="space-y-4 pb-4">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
+                  <MessageCircle size={12} className={newPostContent.length > 5 ? "text-mira-green" : "text-red-500"} /> 2. MENSAGEM DO POST
+                </label>
+                <div className="relative">
+                  <textarea value={newPostContent} onChange={(e) => setNewPostContent(e.target.value)} className={`w-full h-44 p-6 bg-slate-50 border-2 rounded-[2rem] text-sm font-bold focus:bg-white focus:border-mira-blue transition-all shadow-inner outline-none resize-none leading-relaxed text-slate-800 ${newPostContent.length < 5 ? 'border-red-50' : 'border-slate-100'}`} placeholder="Escreva aqui de forma visível e resumida..." />
+                  <div className={`absolute bottom-4 right-6 text-[9px] font-black uppercase tracking-widest ${newPostContent.length > 250 ? 'text-red-500' : 'text-slate-400'}`}>
+                    {newPostContent.length} / 300
+                  </div>
+                </div>
+              </div>
+
             </div>
+          </div>
+
+          {/* FOOTER ACTIONS */}
+          <div className="p-6 border-t border-slate-200 shrink-0 bg-slate-50 flex gap-4">
+            <button onClick={() => setShowCreateModal(false)} className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-colors">
+              Cancelar
+            </button>
+            <button onClick={handleCreatePost} disabled={!newPostContent.trim() || !selectedCategory} className="flex-1 bg-slate-900 hover:bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-3 shadow-2xl shadow-slate-900/20 active:scale-95 transition-all disabled:opacity-20 disabled:scale-100">
+              <Send size={18} /> Publicar na Rede
+            </button>
           </div>
         </div>
       )}
