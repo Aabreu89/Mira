@@ -85,6 +85,19 @@ export const communityService = {
         return data;
     },
 
+    async deletePost(postId: string, userId: string) {
+        const { error } = await supabase
+            .from('posts')
+            .delete()
+            .eq('id', postId)
+            .eq('author_id', userId);
+
+        if (error) {
+            console.error('Error deleting post:', error);
+            throw error;
+        }
+    },
+
     async createComment(postId: string, authorId: string, content: string) {
         const { data, error } = await supabase.from('comments').insert([
             {
@@ -99,25 +112,34 @@ export const communityService = {
     },
 
     async voteOrLike(postId: string, userId: string, voteType: 'useful' | 'fake' | 'like') {
-        // 1. Check if vote exists
+        const inTypes = voteType === 'like' ? ['like'] : ['useful', 'fake'];
         const { data: existing } = await supabase
             .from('post_votes')
             .select('id, vote_type')
             .eq('post_id', postId)
             .eq('user_id', userId)
-            .in('vote_type', voteType === 'like' ? ['like'] : ['useful', 'fake'])
+            .in('vote_type', inTypes)
             .single();
 
         if (existing) {
-            if (existing.vote_type === voteType) return null; // Already voted this exactly
+            if (existing.vote_type === voteType) {
+                // Toggle off (Unlike or Remove Vote)
+                const { error } = await supabase
+                    .from('post_votes')
+                    .delete()
+                    .eq('id', existing.id);
+                if (error) throw error;
+                return 'removed';
+            }
 
-            // Update existing vote
+            // Update existing vote (Change from useful to fake or vice versa)
             const { error } = await supabase
                 .from('post_votes')
                 .update({ vote_type: voteType })
                 .eq('id', existing.id);
 
             if (error) throw error;
+            return 'updated';
         } else {
             // Insert new vote
             const { error } = await supabase
@@ -129,6 +151,7 @@ export const communityService = {
                 }]);
 
             if (error) throw error;
+            return 'inserted';
         }
     }
 };

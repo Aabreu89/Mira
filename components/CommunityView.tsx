@@ -262,23 +262,38 @@ const CommunityView: React.FC<CommunityViewProps> = ({
 
   const handleLike = async (postId: string, commentId?: string) => {
     const isLiked = commentId ? likedComments.has(commentId) : likedPosts.has(postId);
-    if (isLiked) return;
 
     setMasterPosts(prev => prev.map(p => {
       if (p.id !== postId) return p;
-      if (!commentId) return { ...p, likes: p.likes + 1 };
-      return { ...p, comments: p.comments.map(c => c.id === commentId ? { ...c, likes: c.likes + 1 } : c) };
+      if (!commentId) return { ...p, likes: isLiked ? Math.max(0, p.likes - 1) : p.likes + 1 };
+      return { ...p, comments: p.comments.map(c => c.id === commentId ? { ...c, likes: isLiked ? Math.max(0, c.likes - 1) : c.likes + 1 } : c) };
     }));
 
     if (commentId) {
-      setLikedComments(prev => new Set(prev).add(commentId));
+      setLikedComments(prev => {
+        const next = new Set(prev);
+        if (isLiked) next.delete(commentId); else next.add(commentId);
+        return next;
+      });
     } else {
-      setLikedPosts(prev => new Set(prev).add(postId));
+      setLikedPosts(prev => {
+        const next = new Set(prev);
+        if (isLiked) next.delete(postId); else next.add(postId);
+        return next;
+      });
       // background Sync
       try {
         await communityService.voteOrLike(postId, user.id, 'like');
       } catch (e) { }
     }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!window.confirm("Certeza que queres eliminar este post? Esta ação não pode ser desfeita.")) return;
+    setMasterPosts(prev => prev.filter(p => p.id !== postId));
+    try {
+      await communityService.deletePost(postId, user.id);
+    } catch (e) { console.error(e); }
   };
 
   const handleAddComment = async () => {
@@ -315,21 +330,31 @@ const CommunityView: React.FC<CommunityViewProps> = ({
   const handleFactVote = async (postId: string, isTrue: boolean) => {
     const currentVote = userVotes[postId];
     const newVote = isTrue ? 'true' : 'false';
-    if (currentVote === newVote) return;
+    const isRemoving = currentVote === newVote;
 
     setMasterPosts(prev => prev.map(p => {
       if (p.id !== postId) return p;
       let useful = p.usefulVotes;
       let fake = p.fakeVotes;
-      if (currentVote === 'true') useful--;
-      if (currentVote === 'false') fake--;
-      if (newVote === 'true') useful++;
-      if (newVote === 'false') fake++;
+
+      if (currentVote === 'true') useful = Math.max(0, useful - 1);
+      if (currentVote === 'false') fake = Math.max(0, fake - 1);
+
+      if (!isRemoving) {
+        if (newVote === 'true') useful++;
+        if (newVote === 'false') fake++;
+      }
       return { ...p, usefulVotes: useful, fakeVotes: fake };
     }));
 
-    setUserVotes(prev => ({ ...prev, [postId]: newVote }));
-    onEarnPoints(5);
+    setUserVotes(prev => {
+      const next = { ...prev };
+      if (isRemoving) delete next[postId];
+      else next[postId] = newVote;
+      return next;
+    });
+
+    if (!isRemoving) onEarnPoints(5);
 
     try {
       await communityService.voteOrLike(postId, user.id, isTrue ? 'useful' : 'fake');
@@ -382,9 +407,26 @@ const CommunityView: React.FC<CommunityViewProps> = ({
             <button onClick={() => setActiveStory(null)} className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all text-white"><X size={20} /></button>
           </div>
 
-          <div className="flex-1 flex flex-col justify-center items-center p-6 relative">
+          <div className="flex-1 flex flex-col justify-center items-center p-6 relative group">
+
+            {/* Story Navigation areas */}
+            {topStories.findIndex(s => s.id === activeStory.id) > 0 && (
+              <div
+                className="absolute left-0 top-0 bottom-0 w-1/4 z-20 cursor-w-resize"
+                onClick={() => setActiveStory(topStories[topStories.findIndex(s => s.id === activeStory.id) - 1])}
+                title="História Anterior"
+              />
+            )}
+            {topStories.findIndex(s => s.id === activeStory.id) < topStories.length - 1 && (
+              <div
+                className="absolute right-0 top-0 bottom-0 w-1/4 z-20 cursor-e-resize"
+                onClick={() => setActiveStory(topStories[topStories.findIndex(s => s.id === activeStory.id) + 1])}
+                title="Próxima História"
+              />
+            )}
+
             <div className="absolute inset-0 z-0 opacity-40 blur-3xl scale-110">
-              <img src={activeStory.backgroundImage} className="w-full h-full object-cover" />
+              <img src={activeStory.backgroundImage} className="w-full h-full object-cover transition-opacity duration-300" />
             </div>
             <div className="relative z-10 bg-black/60 backdrop-blur-2xl p-10 rounded-[3rem] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,1)] max-w-sm w-full text-center max-h-[60vh] flex flex-col justify-center">
               <div className="overflow-y-auto no-scrollbar">
@@ -591,16 +633,29 @@ const CommunityView: React.FC<CommunityViewProps> = ({
                         <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
                       </button>
 
-                      <button
-                        onClick={() => setReportingItem({ postId: post.id })}
-                        className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all relative -top-2"
-                        title="Alerta de Segurança"
-                      >
-                        <div className={`p-4 rounded-2xl transition-all ${post.reports > 0 ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-50 text-slate-300 hover:bg-red-50 hover:text-red-500'}`}>
-                          <ShieldAlert size={22} />
-                        </div>
-                        <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
-                      </button>
+                      {post.authorId === user.id ? (
+                        <button
+                          onClick={() => handleDeletePost(post.id)}
+                          className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all relative -top-2"
+                          title="Eliminar Publicação"
+                        >
+                          <div className={`p-4 rounded-2xl transition-all bg-slate-50 text-slate-300 hover:bg-slate-900 hover:text-white`}>
+                            <Trash2 size={22} />
+                          </div>
+                          <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setReportingItem({ postId: post.id })}
+                          className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all relative -top-2"
+                          title="Alerta de Segurança"
+                        >
+                          <div className={`p-4 rounded-2xl transition-all ${post.reports > 0 ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-50 text-slate-300 hover:bg-red-50 hover:text-red-500'}`}>
+                            <ShieldAlert size={22} />
+                          </div>
+                          <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -718,12 +773,12 @@ const CommunityView: React.FC<CommunityViewProps> = ({
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2"><ImageIcon size={14} className="text-mira-blue" /> SELECIONAR IMAGEM</label>
                     <span className="text-[8px] font-bold text-slate-300 uppercase">Deslize para ver mais</span>
                   </div>
-                  <div className="flex overflow-x-auto no-scrollbar gap-4 pb-2 snap-x snap-mandatory px-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 pb-2 px-2">
                     {THEMED_IMAGES.map((img, idx) => (
                       <button
                         key={idx}
                         onClick={() => setSelectedImage(img)}
-                        className={`shrink-0 w-28 h-36 sm:w-32 sm:h-40 rounded-2xl overflow-hidden border-4 transition-all snap-center relative mt-2 hover:-translate-y-2 group ${selectedImage === img ? 'border-mira-blue scale-100 shadow-xl shadow-cyan-900/10 opacity-100 z-10' : 'border-transparent opacity-50 hover:opacity-100 scale-95'}`}
+                        className={`w-full aspect-[3/4] rounded-2xl overflow-hidden border-4 transition-all relative mt-2 group ${selectedImage === img ? 'border-mira-blue scale-100 shadow-xl shadow-cyan-900/10 opacity-100 z-10' : 'border-transparent opacity-50 hover:opacity-100 scale-95'}`}
                       >
                         <img src={img} className="w-full h-full object-cover" alt={`Opção de fundo ${idx + 1}`} referrerPolicy="no-referrer" />
                         {selectedImage === img && (
