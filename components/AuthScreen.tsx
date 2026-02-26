@@ -275,7 +275,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#0047FF] via-[#0099FF] to-[#00E5FF] relative overflow-hidden font-['Plus_Jakarta_Sans']">
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#0A162B] via-[#003B75] to-[#0A162B] relative overflow-hidden font-['Plus_Jakarta_Sans']">
             <style>
                 {`
             @keyframes modern-pulse {
@@ -295,8 +295,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
             </style>
 
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-white/30 rounded-full blur-[150px]"></div>
-                <div className="absolute bottom-[-10%] left-[-20%] w-[600px] h-[600px] bg-indigo-400/40 rounded-full blur-[200px]"></div>
+                <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-mira-blue-light/15 rounded-full blur-[150px]"></div>
+                <div className="absolute bottom-[-10%] left-[-20%] w-[600px] h-[600px] bg-mira-blue/20 rounded-full blur-[200px]"></div>
             </div>
 
             {/* Language Selector Dropdown - Moved to far Right and distanced from logo */}
