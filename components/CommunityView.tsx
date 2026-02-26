@@ -186,6 +186,16 @@ const CommunityView: React.FC<CommunityViewProps> = ({
   const [reportingItem, setReportingItem] = useState<{ postId: string, commentId?: string } | null>(null);
   const [reportForm, setReportForm] = useState({ name: user.name || '', email: user.email || '', reason: '' });
 
+  const [activeStory, setActiveStory] = useState<Post | null>(null);
+
+  const topStories = useMemo(() => {
+    return [...masterPosts].sort((a, b) => {
+      const scoreA = a.likes + a.comments.length + a.usefulVotes + a.fakeVotes;
+      const scoreB = b.likes + b.comments.length + b.usefulVotes + b.fakeVotes;
+      return scoreB - scoreA;
+    }).slice(0, 10);
+  }, [masterPosts]);
+
   const filteredPosts = useMemo(() => {
     let result = activeCategory === 'Todos' ? masterPosts : masterPosts.filter(p => p.category === activeCategory);
     if (searchFilter.trim()) {
@@ -309,6 +319,60 @@ const CommunityView: React.FC<CommunityViewProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-slate-50 overflow-hidden relative font-['Plus_Jakarta_Sans']">
+
+      {/* STORY MODAL */}
+      {activeStory && (
+        <div className="fixed inset-0 z-[700] bg-black/95 backdrop-blur-xl flex flex-col pt-12 animate-in zoom-in-95 duration-300">
+          <div className="px-6 flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => { setActiveStory(null); openMemberProfile(activeStory.authorId, activeStory.authorName, activeStory.authorAvatar); }}>
+              <img src={activeStory.authorAvatar} className="w-12 h-12 rounded-[1.2rem] border-2 border-white/20 group-hover:border-mira-orange transition-colors" />
+              <div>
+                <p className="text-white font-black text-sm uppercase tracking-tight">{activeStory.authorName}</p>
+                <p className="text-mira-orange text-[9px] font-black uppercase tracking-widest">{t(getCategoryKey(activeStory.category), language)}</p>
+              </div>
+            </div>
+            <button onClick={() => setActiveStory(null)} className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all text-white"><X size={20} /></button>
+          </div>
+
+          <div className="flex-1 flex flex-col justify-center items-center p-6 relative">
+            <div className="absolute inset-0 z-0 opacity-40 blur-3xl scale-110">
+              <img src={activeStory.backgroundImage} className="w-full h-full object-cover" />
+            </div>
+            <div className="relative z-10 bg-black/60 backdrop-blur-2xl p-10 rounded-[3rem] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,1)] max-w-sm w-full text-center max-h-[60vh] flex flex-col justify-center">
+              <div className="overflow-y-auto no-scrollbar">
+                <p className="font-black text-white leading-tight tracking-tight uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-2xl">
+                  <TranslatedText text={activeStory.content} language={language} />
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8 pb-12 flex justify-center gap-6 z-10 bg-gradient-to-t from-black to-transparent">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-[1.2rem] flex items-center justify-center text-white"><Heart size={24} className="fill-red-500 text-red-500" /></div>
+              <span className="text-white text-[10px] font-black uppercase tracking-widest">{activeStory.likes} Likes</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-[1.2rem] flex items-center justify-center text-white"><MessageCircle size={24} className="text-indigo-400" /></div>
+              <span className="text-white text-[10px] font-black uppercase tracking-widest">{activeStory.comments.length} Coment.</span>
+            </div>
+            <div className="flex flex-col items-center gap-2" onClick={() => {
+              const thePost = activeStory.id;
+              setActiveStory(null);
+              setSearchFilter("");
+              setActiveCategory("Todos");
+              setTimeout(() => {
+                const el = document.getElementById(`post-${thePost}`);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 100);
+            }}>
+              <div className="w-14 h-14 bg-mira-orange rounded-[1.2rem] flex items-center justify-center text-white cursor-pointer shadow-[0_0_20px_#f97316] hover:scale-105 active:scale-95 transition-all"><Plus size={24} strokeWidth={3} /></div>
+              <span className="text-mira-orange text-[10px] font-black uppercase tracking-widest">Abrir Post</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Perfil Popup Modal */}
       {selectedMember && (
         <div className="fixed inset-0 z-[600] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-in zoom-in-95 duration-300">
@@ -383,129 +447,149 @@ const CommunityView: React.FC<CommunityViewProps> = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar p-5 space-y-10 pb-48">
-        {filteredPosts.length > 0 ? filteredPosts.map(post => {
-          const isPostLiked = likedPosts.has(post.id);
-          const isPostSaved = savedPostsIds.has(post.id);
-          const fontSizeClass = post.content.length < 80 ? 'text-2xl' : post.content.length < 160 ? 'text-lg' : 'text-sm';
-          return (
-            <div key={post.id} className="bg-white rounded-[3.5rem] overflow-hidden shadow-sm border border-slate-100 group transition-all hover:shadow-2xl">
-              <div className="h-[480px] relative overflow-hidden">
-                <img src={post.backgroundImage} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Post Visual" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/60"></div>
+      <div className="flex-1 overflow-y-auto no-scrollbar pt-6 space-y-10 pb-48">
+        {/* STORIES SECTION */}
+        {topStories.length > 0 && (
+          <div className="mb-2 border-b border-slate-100 pb-6 bg-white/50 -mt-6">
+            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-8 pt-4 mb-3 flex items-center gap-2"><Star size={12} className="text-mira-yellow fill-mira-yellow" /> Em Destaque na Comunidade</h3>
+            <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 px-8 snap-x">
+              {topStories.map((story, i) => (
+                <div key={story.id} className="flex flex-col items-center gap-2.5 cursor-pointer group shrink-0 snap-start active:scale-90 transition-transform" onClick={() => setActiveStory(story)}>
+                  <div className="w-[4.5rem] h-[4.5rem] rounded-[1.8rem] p-1 bg-gradient-to-tr from-mira-orange via-mira-yellow to-mira-blue shadow-lg group-hover:shadow-xl transition-all relative">
+                    {i === 0 && <div className="absolute -top-1 -right-1 bg-red-500 w-4 h-4 rounded-full border-2 border-white z-10 animate-pulse" />}
+                    <img src={story.authorAvatar || `https://ui-avatars.com/api/?name=${story.authorName}`} className="w-full h-full rounded-[1.5rem] object-cover border-2 border-white" alt="" referrerPolicy="no-referrer" />
+                  </div>
+                  <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest truncate w-[4.5rem] text-center opacity-80 group-hover:opacity-100">{story.authorName.split(' ')[0]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-                {/* Metadata Header - Nome menor que categoria como solicitado */}
-                <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
-                  <div onClick={() => openMemberProfile(post.authorId, post.authorName, post.authorAvatar)} className="flex items-center gap-2.5 bg-white/10 backdrop-blur-2xl p-1.5 pr-4 rounded-full border border-white/20 cursor-pointer active:scale-95 shadow-2xl group/author">
-                    <img src={post.authorAvatar} className="w-8 h-8 rounded-full border border-white/40 shadow-sm" alt="" referrerPolicy="no-referrer" />
-                    <div className="text-white">
-                      <p className="text-[8px] font-black uppercase tracking-widest leading-none opacity-90 group-hover/author:opacity-100">{post.authorName}</p>
+        <div className="px-5 space-y-10">
+          {filteredPosts.length > 0 ? filteredPosts.map(post => {
+            const isPostLiked = likedPosts.has(post.id);
+            const isPostSaved = savedPostsIds.has(post.id);
+            const fontSizeClass = post.content.length < 80 ? 'text-2xl' : post.content.length < 160 ? 'text-lg' : 'text-sm';
+            return (
+              <div key={post.id} id={`post-${post.id}`} className="bg-white rounded-[3.5rem] overflow-hidden shadow-sm border border-slate-100 group transition-all hover:shadow-2xl">
+                <div className="h-[480px] relative overflow-hidden">
+                  <img src={post.backgroundImage} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Post Visual" referrerPolicy="no-referrer" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/60"></div>
+
+                  {/* Metadata Header - Nome menor que categoria como solicitado */}
+                  <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
+                    <div onClick={() => openMemberProfile(post.authorId, post.authorName, post.authorAvatar)} className="flex items-center gap-2.5 bg-white/10 backdrop-blur-2xl p-1.5 pr-4 rounded-full border border-white/20 cursor-pointer active:scale-95 shadow-2xl group/author">
+                      <img src={post.authorAvatar} className="w-8 h-8 rounded-full border border-white/40 shadow-sm" alt="" referrerPolicy="no-referrer" />
+                      <div className="text-white">
+                        <p className="text-[8px] font-black uppercase tracking-widest leading-none opacity-90 group-hover/author:opacity-100">{post.authorName}</p>
+                      </div>
+                    </div>
+                    <span className="bg-mira-orange text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/10">{t(getCategoryKey(post.category), language)}</span>
+                  </div>
+
+                  {/* Post Content */}
+                  <div className="absolute inset-0 z-10 flex items-center justify-center px-8">
+                    <div className="bg-black/40 backdrop-blur-xl p-10 rounded-[3.5rem] border border-white/10 shadow-2xl max-w-[340px] w-full text-center max-h-[340px] flex flex-col justify-center transform transition-transform group-hover:-translate-y-1">
+                      <div className="overflow-y-auto no-scrollbar">
+                        <p className={`font-black text-white leading-tight tracking-tight uppercase break-words drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] ${fontSizeClass}`}>
+                          <TranslatedText text={post.content} language={language} />
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <span className="bg-mira-orange text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/10">{t(getCategoryKey(post.category), language)}</span>
                 </div>
 
-                {/* Post Content */}
-                <div className="absolute inset-0 z-10 flex items-center justify-center px-8">
-                  <div className="bg-black/40 backdrop-blur-xl p-10 rounded-[3.5rem] border border-white/10 shadow-2xl max-w-[340px] w-full text-center max-h-[340px] flex flex-col justify-center transform transition-transform group-hover:-translate-y-1">
-                    <div className="overflow-y-auto no-scrollbar">
-                      <p className={`font-black text-white leading-tight tracking-tight uppercase break-words drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] ${fontSizeClass}`}>
-                        <TranslatedText text={post.content} language={language} />
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Interaction Area - Diagramação Reformulada */}
-              <div className="p-8 space-y-8">
-                <div className="flex gap-3">
-                  <button onClick={() => handleFactVote(post.id, true)} className={`flex-1 py-4.5 rounded-[1.5rem] flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all border-2 min-h-[56px] ${userVotes[post.id] === 'true' ? 'bg-emerald-500 text-white border-emerald-500 shadow-xl shadow-emerald-100' : 'bg-white text-emerald-500 border-emerald-50 hover:bg-emerald-50'}`}>
-                    <CheckCircle size={16} /> <span className="truncate">VERDADE ({post.usefulVotes})</span>
-                  </button>
-                  <button onClick={() => handleFactVote(post.id, false)} className={`flex-1 py-4.5 rounded-[1.5rem] flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all border-2 min-h-[56px] ${userVotes[post.id] === 'false' ? 'bg-red-500 text-white border-red-500 shadow-xl shadow-red-100' : 'bg-white text-red-500 border-red-50 hover:bg-red-50'}`}>
-                    <ShieldX size={16} /> <span className="truncate">FALSO ({post.fakeVotes})</span>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between px-2 pt-2 gap-2">
-                  <div className="flex items-center justify-between flex-1">
-                    <button onClick={() => handleLike(post.id)} className={`flex flex-col items-center gap-1.5 group transition-all ${isPostLiked ? 'cursor-default' : 'active:scale-90'}`}>
-                      <div className={`p-4 rounded-2xl transition-all ${isPostLiked ? 'bg-mira-orange text-white shadow-lg shadow-orange-200' : 'bg-slate-50 text-slate-300 group-hover:bg-red-50'}`}>
-                        <Heart size={22} className={isPostLiked ? 'fill-white text-white' : ''} />
-                      </div>
-                      <span className="text-[9px] font-black text-slate-800 tracking-tighter">{post.likes}</span>
+                {/* Interaction Area - Diagramação Reformulada */}
+                <div className="p-8 space-y-8">
+                  <div className="flex gap-3">
+                    <button onClick={() => handleFactVote(post.id, true)} className={`flex-1 py-4.5 rounded-[1.5rem] flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all border-2 min-h-[56px] ${userVotes[post.id] === 'true' ? 'bg-emerald-500 text-white border-emerald-500 shadow-xl shadow-emerald-100' : 'bg-white text-emerald-500 border-emerald-50 hover:bg-emerald-50'}`}>
+                      <CheckCircle size={16} /> <span className="truncate">VERDADE ({post.usefulVotes})</span>
                     </button>
-
-                    <button onClick={() => setCommentingOn({ postId: post.id })} className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all">
-                      <div className="p-4 bg-slate-50 rounded-2xl text-slate-300 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-all">
-                        <MessageCircle size={22} />
-                      </div>
-                      <span className="text-[9px] font-black text-slate-800 tracking-tighter">{post.comments.length}</span>
-                    </button>
-
-                    <div className="flex flex-col items-center gap-1.5 group transition-all">
-                      <VoicePlayButton text={post.content} language={language} />
-                      <span className="text-[9px] font-black text-slate-800 tracking-tighter">Ouvir</span>
-                    </div>
-
-                    <button
-                      onClick={() => onToggleSavePost(post.id)}
-                      className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all"
-                      title="Salvar Post"
-                    >
-                      <div className={`p-4 rounded-2xl transition-all ${isPostSaved ? 'bg-mira-blue text-white shadow-lg shadow-blue-200' : 'bg-slate-50 text-slate-300'}`}>
-                        <Bookmark size={22} className={isPostSaved ? 'fill-white' : ''} />
-                      </div>
-                      <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
-                    </button>
-
-                    <button
-                      onClick={() => setReportingItem({ postId: post.id })}
-                      className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all relative -top-2"
-                      title="Alerta de Segurança"
-                    >
-                      <div className={`p-4 rounded-2xl transition-all ${post.reports > 0 ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-50 text-slate-300 hover:bg-red-50 hover:text-red-500'}`}>
-                        <ShieldAlert size={22} />
-                      </div>
-                      <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
+                    <button onClick={() => handleFactVote(post.id, false)} className={`flex-1 py-4.5 rounded-[1.5rem] flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all border-2 min-h-[56px] ${userVotes[post.id] === 'false' ? 'bg-red-500 text-white border-red-500 shadow-xl shadow-red-100' : 'bg-white text-red-500 border-red-50 hover:bg-red-50'}`}>
+                      <ShieldX size={16} /> <span className="truncate">FALSO ({post.fakeVotes})</span>
                     </button>
                   </div>
-                </div>
 
-                {post.comments.length > 0 && (
-                  <div className="mt-4 space-y-5 border-t border-slate-50 pt-8">
-                    {post.comments.map(comment => (
-                      <div key={comment.id} className="flex gap-4 items-start group/comment">
-                        <img src={comment.authorAvatar} className="w-11 h-11 rounded-2xl border-2 border-white shadow-sm cursor-pointer hover:scale-105 transition-all shrink-0" onClick={() => openMemberProfile(comment.authorId, comment.authorName || 'Membro', comment.authorAvatar || '')} alt="" referrerPolicy="no-referrer" />
-                        <div className="flex-1 bg-slate-50/70 p-5 rounded-[1.8rem] rounded-tl-none border border-slate-100 relative max-w-full overflow-hidden shadow-sm hover:bg-white hover:shadow-md transition-all">
-                          <div className="flex justify-between items-center mb-1.5">
-                            <p className="text-xs font-black text-slate-900 uppercase tracking-tight truncate">{comment.authorName}</p>
-                            <button
-                              onClick={() => setReportingItem({ postId: post.id, commentId: comment.id })}
-                              className="p-1.5 text-slate-300 hover:text-red-500 transition-colors"
-                              title="Denunciar Comentário"
-                            >
-                              <ShieldAlert size={14} />
-                            </button>
-                          </div>
-                          <p className="text-sm text-slate-700 font-medium leading-relaxed break-words whitespace-pre-line">
-                            <TranslatedText text={comment.content} language={language} />
-                          </p>
-                          <div className="flex items-center gap-6 mt-4 pt-3 border-t border-slate-200/40">
-                            <button onClick={() => handleLike(post.id, comment.id)} className={`flex items-center gap-1.5 text-[9px] font-black uppercase text-slate-400 hover:text-red-500 transition-colors ${likedComments.has(comment.id) ? 'text-red-500 cursor-default' : ''}`}><Heart size={12} className={comment.likes > 0 ? 'fill-red-500 text-red-500' : ''} /> {comment.likes}</button>
-                            <button onClick={() => setCommentingOn({ postId: post.id, replyToName: comment.authorName })} className="flex items-center gap-1.5 text-[9px] font-black uppercase text-slate-400 hover:text-indigo-500 transition-colors"><Reply size={12} /> RESPONDER</button>
-                            <span className="text-[8px] text-slate-300 ml-auto font-bold uppercase tracking-tighter">{comment.timestamp}</span>
+                  <div className="flex items-center justify-between px-2 pt-2 gap-2">
+                    <div className="flex items-center justify-between flex-1">
+                      <button onClick={() => handleLike(post.id)} className={`flex flex-col items-center gap-1.5 group transition-all ${isPostLiked ? 'cursor-default' : 'active:scale-90'}`}>
+                        <div className={`p-4 rounded-2xl transition-all ${isPostLiked ? 'bg-mira-orange text-white shadow-lg shadow-orange-200' : 'bg-slate-50 text-slate-300 group-hover:bg-red-50'}`}>
+                          <Heart size={22} className={isPostLiked ? 'fill-white text-white' : ''} />
+                        </div>
+                        <span className="text-[9px] font-black text-slate-800 tracking-tighter">{post.likes}</span>
+                      </button>
+
+                      <button onClick={() => setCommentingOn({ postId: post.id })} className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all">
+                        <div className="p-4 bg-slate-50 rounded-2xl text-slate-300 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-all">
+                          <MessageCircle size={22} />
+                        </div>
+                        <span className="text-[9px] font-black text-slate-800 tracking-tighter">{post.comments.length}</span>
+                      </button>
+
+                      <div className="flex flex-col items-center gap-1.5 group transition-all">
+                        <VoicePlayButton text={post.content} language={language} />
+                        <span className="text-[9px] font-black text-slate-800 tracking-tighter">Ouvir</span>
+                      </div>
+
+                      <button
+                        onClick={() => onToggleSavePost(post.id)}
+                        className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all"
+                        title="Salvar Post"
+                      >
+                        <div className={`p-4 rounded-2xl transition-all ${isPostSaved ? 'bg-mira-blue text-white shadow-lg shadow-blue-200' : 'bg-slate-50 text-slate-300'}`}>
+                          <Bookmark size={22} className={isPostSaved ? 'fill-white' : ''} />
+                        </div>
+                        <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
+                      </button>
+
+                      <button
+                        onClick={() => setReportingItem({ postId: post.id })}
+                        className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all relative -top-2"
+                        title="Alerta de Segurança"
+                      >
+                        <div className={`p-4 rounded-2xl transition-all ${post.reports > 0 ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-50 text-slate-300 hover:bg-red-50 hover:text-red-500'}`}>
+                          <ShieldAlert size={22} />
+                        </div>
+                        <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {post.comments.length > 0 && (
+                    <div className="mt-4 space-y-5 border-t border-slate-50 pt-8">
+                      {post.comments.map(comment => (
+                        <div key={comment.id} className="flex gap-4 items-start group/comment">
+                          <img src={comment.authorAvatar} className="w-11 h-11 rounded-2xl border-2 border-white shadow-sm cursor-pointer hover:scale-105 transition-all shrink-0" onClick={() => openMemberProfile(comment.authorId, comment.authorName || 'Membro', comment.authorAvatar || '')} alt="" referrerPolicy="no-referrer" />
+                          <div className="flex-1 bg-slate-50/70 p-5 rounded-[1.8rem] rounded-tl-none border border-slate-100 relative max-w-full overflow-hidden shadow-sm hover:bg-white hover:shadow-md transition-all">
+                            <div className="flex justify-between items-center mb-1.5">
+                              <p className="text-xs font-black text-slate-900 uppercase tracking-tight truncate">{comment.authorName}</p>
+                              <button
+                                onClick={() => setReportingItem({ postId: post.id, commentId: comment.id })}
+                                className="p-1.5 text-slate-300 hover:text-red-500 transition-colors"
+                                title="Denunciar Comentário"
+                              >
+                                <ShieldAlert size={14} />
+                              </button>
+                            </div>
+                            <p className="text-sm text-slate-700 font-medium leading-relaxed break-words whitespace-pre-line">
+                              <TranslatedText text={comment.content} language={language} />
+                            </p>
+                            <div className="flex items-center gap-6 mt-4 pt-3 border-t border-slate-200/40">
+                              <button onClick={() => handleLike(post.id, comment.id)} className={`flex items-center gap-1.5 text-[9px] font-black uppercase text-slate-400 hover:text-red-500 transition-colors ${likedComments.has(comment.id) ? 'text-red-500 cursor-default' : ''}`}><Heart size={12} className={comment.likes > 0 ? 'fill-red-500 text-red-500' : ''} /> {comment.likes}</button>
+                              <button onClick={() => setCommentingOn({ postId: post.id, replyToName: comment.authorName })} className="flex items-center gap-1.5 text-[9px] font-black uppercase text-slate-400 hover:text-indigo-500 transition-colors"><Reply size={12} /> RESPONDER</button>
+                              <span className="text-[8px] text-slate-300 ml-auto font-bold uppercase tracking-tighter">{comment.timestamp}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        }) : <div className="flex flex-col items-center justify-center py-40 opacity-20"><Search size={64} className="mb-4" /><p className="text-xs font-black uppercase tracking-[0.3em]">Nenhum post encontrado</p></div>}
+            );
+          }) : <div className="flex flex-col items-center justify-center py-40 opacity-20"><Search size={64} className="mb-4" /><p className="text-xs font-black uppercase tracking-[0.3em]">Nenhum post encontrado</p></div>}
+        </div>
       </div>
 
       {/* REPORT MODAL */}
