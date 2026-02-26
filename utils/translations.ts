@@ -91,7 +91,9 @@ export const t = (key: string, lang: string): string => {
       learning_academy: "ACADEMIA MIRA",
       learning_back: "Voltar aos Estudos",
       comm_new_post: "NOVO POST",
-      comm_cat_req: "Escolha uma categoria (obrigatório)"
+      comm_cat_req: "Escolha uma categoria (obrigatório)",
+      comm_search: "Pesquisar...",
+      comm_all_cats: "Todas as Categorias"
     },
     en: {
       nav_home: "Home",
@@ -183,7 +185,9 @@ export const t = (key: string, lang: string): string => {
       learning_academy: "MIRA ACADEMY",
       learning_back: "Back to Studies",
       comm_new_post: "NEW POST",
-      comm_cat_req: "Choose a category (required)"
+      comm_cat_req: "Choose a category (required)",
+      comm_search: "Search...",
+      comm_all_cats: "All Categories"
     },
     es: {
       nav_home: "Inicio",
@@ -275,7 +279,9 @@ export const t = (key: string, lang: string): string => {
       learning_academy: "ACADEMIA MIRA",
       learning_back: "Volver a los Estudios",
       comm_new_post: "NUEVO POST",
-      comm_cat_req: "Elija una categoría (obligatorio)"
+      comm_cat_req: "Elija una categoría (obligatorio)",
+      comm_search: "Buscar...",
+      comm_all_cats: "Todas las Categorías"
     },
     fr: {
       nav_home: "Accueil",
@@ -367,7 +373,9 @@ export const t = (key: string, lang: string): string => {
       learning_academy: "ACADÉMIE MIRA",
       learning_back: "Retour aux Études",
       comm_new_post: "NOUVEAU POST",
-      comm_cat_req: "Choisissez une catégorie (obligatoire)"
+      comm_cat_req: "Choisissez une catégorie (obligatoire)",
+      comm_search: "Rechercher...",
+      comm_all_cats: "Toutes les Catégories"
     }
   };
 

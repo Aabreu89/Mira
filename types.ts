@@ -196,7 +196,7 @@ export interface Message {
 export interface AppActivityLog {
   id: string;
   userId: string;
-  action: 'post_created' | 'comment_created' | 'ai_query' | 'view_changed' | 'fraud_report' | 'doc_generated' | 'vote_cast' | 'job_click' | 'course_view' | 'admin_delete' | 'admin_include';
+  action: 'post_created' | 'comment_created' | 'ai_query' | 'view_changed' | 'fraud_report' | 'doc_generated' | 'vote_cast' | 'job_click' | 'course_view' | 'admin_delete' | 'admin_include' | 'admin_topic_suggestion' | 'admin_job_sync' | 'admin_course_sync' | 'admin_delete_all_posts' | 'admin_delete_all_comments' | 'admin_delete_all_users';
   category?: string;
   timestamp: string;
   metadata?: any;

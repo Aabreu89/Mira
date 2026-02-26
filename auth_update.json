@@ -1,0 +1,8 @@
+{
+    "mailer_autoconfirm": true,
+    "smtp_host": null,
+    "smtp_user": null,
+    "smtp_pass": null,
+    "smtp_port": null,
+    "smtp_admin_email": null
+}

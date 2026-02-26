@@ -3,7 +3,7 @@ import React from 'react';
 
 export const COLORS = {
   primary: '#f97316', // MIRA Orange
-  secondary: '#0ea5e9', // MIRA Blue
+  secondary: '#4A707A', // MIRA Blue
   accent: '#eab308', // MIRA Yellow
   success: '#22c55e', // MIRA Green
   pastel: {
@@ -14,7 +14,7 @@ export const COLORS = {
   }
 };
 
-export const MIRA_LOGO_URL = 'https://raw.githubusercontent.com/lucide-react/lucide/main/icons/shield-check.svg';
+export const MIRA_LOGO_URL = '/logo-mira.png';
 
 export const OFFICIAL_SOURCES = [
   { name: "AIMA", url: "https://aima.gov.pt", category: "Imigração e Regularização", id: "aima" },
@@ -36,58 +36,9 @@ export const OFFICIAL_SOURCES = [
 ];
 
 export const MIRA_LOGO = (
-  <svg width="100%" height="100%" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="mira_official_gradient" x1="20" y1="20" x2="180" y2="180" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#f97316" />
-        <stop offset="1" stopColor="#0ea5e9" />
-      </linearGradient>
-      <filter id="mira_institutional_shadow" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
-        <feOffset dx="0" dy="2" result="offsetblur" />
-        <feComponentTransfer>
-          <feFuncA type="linear" slope="0.2" />
-        </feComponentTransfer>
-        <feMerge>
-          <feMergeNode />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-    </defs>
-    
-    {/* Clean Rounded Background Container */}
-    <rect x="10" y="10" width="180" height="180" rx="60" fill="white" stroke="#f1f5f9" strokeWidth="2" />
-    <rect x="20" y="20" width="160" height="160" rx="52" fill="url(#mira_official_gradient)" fillOpacity="0.03" />
-    
-    {/* Stylized M / Compass / Community Shield */}
-    <g filter="url(#mira_institutional_shadow)">
-      {/* The "M" for Mira - Refined as two merging paths of support */}
-      <path 
-        d="M55 145V65L100 110L145 65V145" 
-        stroke="url(#mira_official_gradient)" 
-        strokeWidth="18" 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-      />
-      
-      {/* Guidance Star / Spark of Intelligence */}
-      <path 
-        d="M100 35L104 47L116 51L104 55L100 67L96 55L84 51L96 47L100 35Z" 
-        fill="#eab308"
-      />
-      
-      {/* Decorative Supporting Arc */}
-      <path 
-        d="M45 100C45 69.6243 69.6243 45 100 45C130.376 45 155 69.6243 155 100" 
-        stroke="#0ea5e9" 
-        strokeWidth="3" 
-        strokeDasharray="1 10" 
-        strokeLinecap="round" 
-        opacity="0.4"
-      />
-    </g>
-
-    {/* Subtle Institutional Border Line */}
-    <circle cx="100" cy="100" r="88" stroke="url(#mira_official_gradient)" strokeWidth="0.5" strokeDasharray="2 4" opacity="0.2" />
-  </svg>
+  <img
+    src="/logo-mira.png"
+    alt="MIRA Logo"
+    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+  />
 );
