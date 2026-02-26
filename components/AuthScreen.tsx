@@ -275,7 +275,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#0B1528] via-[#10233B] to-[#0B1528] relative overflow-hidden font-['Plus_Jakarta_Sans']">
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#0047FF] via-[#0099FF] to-[#00E5FF] relative overflow-hidden font-['Plus_Jakarta_Sans']">
             <style>
                 {`
             @keyframes modern-pulse {
@@ -295,8 +295,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
             </style>
 
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-mira-blue-light/20 rounded-full blur-[150px]"></div>
-                <div className="absolute bottom-[-10%] left-[-20%] w-[600px] h-[600px] bg-mira-blue/20 rounded-full blur-[200px]"></div>
+                <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-white/30 rounded-full blur-[150px]"></div>
+                <div className="absolute bottom-[-10%] left-[-20%] w-[600px] h-[600px] bg-indigo-400/40 rounded-full blur-[200px]"></div>
             </div>
 
             {/* Language Selector Dropdown - Moved to far Right and distanced from logo */}
@@ -334,7 +334,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                         </div>
                     </div>
                     <h1 className="text-5xl font-black text-white tracking-tighter drop-shadow-md leading-none">MIRA</h1>
-                    <p className="text-mira-blue-light/80 text-[9px] font-bold mt-4 max-w-[280px] mx-auto leading-relaxed uppercase tracking-[0.2em]">Empoderando vozes. Unindo vidas</p>
+                    <p className="text-white/90 text-[9px] font-bold mt-4 max-w-[280px] mx-auto leading-relaxed uppercase tracking-[0.2em]">Empoderando vozes. Unindo vidas</p>
                 </div>
 
                 <div className="bg-white/95 backdrop-blur-3xl w-full p-10 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] relative overflow-hidden border border-white/20">
@@ -347,8 +347,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                 {/* Link de Registro Separado */}
                 {!isForgotPassword && !isVerifyingEmail && (
                     <div className="text-center mt-10 mb-16 animate-in fade-in duration-1000">
-                        <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-[10px] font-black text-white/50 hover:text-white transition-colors uppercase tracking-[0.2em]">
-                            {isLogin ? 'Ainda não tens conta?' : 'Já fazes parte da rede?'} <span className="text-mira-blue-light underline decoration-mira-blue-light/40 underline-offset-8 decoration-2">{isLogin ? 'Regista-te aqui' : 'Entra aqui'}</span>
+                        <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-[10px] font-black text-white/80 hover:text-white transition-colors uppercase tracking-[0.2em] drop-shadow-sm">
+                            {isLogin ? 'Ainda não tens conta?' : 'Já fazes parte da rede?'} <span className="text-white underline decoration-white/40 underline-offset-8 decoration-2">{isLogin ? 'Regista-te aqui' : 'Entra aqui'}</span>
                         </button>
                     </div>
                 )}
@@ -362,7 +362,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                     <div className="w-2 h-2 rounded-full bg-mira-yellow dot-flash-3 shadow-[0_0_10px_#eab308]"></div>
                     <div className="w-2 h-2 rounded-full bg-mira-green dot-flash-4 shadow-[0_0_10px_#22c55e]"></div>
                 </div>
-                <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">MIRA - COPYWRITE 2026, Amanda Silva Abreu.</p>
+                <p className="text-[8px] font-black text-white/60 uppercase tracking-[0.3em] drop-shadow-sm">MIRA - COPYWRITE 2026, Amanda Silva Abreu.</p>
             </div>
         </div>
     );
