@@ -673,6 +673,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({ masterPosts, onUpdatePost
                                             <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Cidade</label>
                                             <input type="text" className="w-full p-4 bg-black/50 border border-white/10 rounded-2xl text-sm font-bold text-white outline-none" value={newContent.city} onChange={e => setNewContent({ ...newContent, city: e.target.value })} />
                                         </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Link do Serviço (Opcional)</label>
+                                            <input type="text" className="w-full p-4 bg-black/50 border border-white/10 rounded-2xl text-sm font-bold text-white outline-none" placeholder="https://..." value={newContent.url} onChange={e => setNewContent({ ...newContent, url: e.target.value })} />
+                                        </div>
                                     </div>
                                 )}
 
