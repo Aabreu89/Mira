@@ -304,15 +304,18 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Floating Chat Mira Button - ORANGE BLINKING ICON as requested */}
+      {/* Floating Chat Mira Button - Fixado para sempre aparecer na direita em baixo */}
       {!isAdmin && currentView !== ViewType.ASSISTANT && (
         <button
           onClick={() => setCurrentView(ViewType.ASSISTANT)}
-          className="fixed bottom-28 right-6 z-[250] w-16 h-16 bg-gradient-to-br from-mira-orange via-orange-500 to-red-600 text-white rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-all hover:scale-110 group animate-mira-blink"
+          className="fixed bottom-24 right-6 md:right-8 lg:right-10 z-[9999] w-16 h-16 bg-gradient-to-br from-mira-orange via-orange-500 to-red-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_40px_rgba(249,115,22,0.6)] active:scale-90 transition-all hover:scale-110 group animate-pulse"
         >
-          <Bot size={32} className="text-white group-hover:rotate-12 transition-transform" />
-          <div className="absolute -top-1 -right-1 bg-white p-1 rounded-full shadow-sm animate-pulse"><Sparkles size={12} className="text-mira-yellow fill-mira-yellow" /></div>
-          <div className="absolute right-20 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-2xl">Dúvidas? Pergunte ao MIRA</div>
+          <Bot size={32} className="text-white group-hover:rotate-12 transition-transform drop-shadow-md" />
+          <div className="absolute top-0 right-0 w-4 h-4 bg-mira-green rounded-full border-2 border-white shadow-sm"></div>
+          <div className="absolute -top-3 right-full mr-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-2xl">
+            Dúvidas? Pergunte ao MIRA
+            <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-900 rotate-45 transform origin-center"></div>
+          </div>
         </button>
       )}
 
