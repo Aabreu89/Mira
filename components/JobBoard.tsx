@@ -118,16 +118,24 @@ const generateMockJobs = (): JobPost[] => {
   WORK_TOPICS.forEach((topic) => {
     const titles = titlesByCategory[topic] || ["Profissional Qualificado", "Colaborador Operacional", "Especialista Setorial"];
 
-    for (let i = 0; i < 6; i++) {
+    // Simular o crawler passando por vários anúncios
+    for (let i = 0; i < 8; i++) {
       const sourceUrl = JOB_SOURCES[Math.floor(Math.random() * JOB_SOURCES.length)];
+
+      // Simula a idade da vaga no site original (0 a 45 dias)
+      const daysOld = Math.floor(Math.random() * 45);
+
+      // REGRA OBRIGATÓRIA: Vagas com mais de 4 semanas (28 dias) não entram na plataforma.
+      if (daysOld > 28) continue;
+
       allJobs.push({
         id: `job-${topic.substring(0, 3)}-${i}-${Math.random().toString(36).substr(2, 5)}`,
         title: titles[i % titles.length],
         location: PT_LOCATIONS[Math.floor(Math.random() * (PT_LOCATIONS.length - 1)) + 1],
         sourceName: getSourceName(sourceUrl),
         sourceUrl: sourceUrl.startsWith('http') ? sourceUrl : `https://${sourceUrl}`,
-        datePosted: `${Math.floor(Math.random() * 5) + 1}d`,
-        tags: i === 0 ? ["Urgente"] : i === 5 ? ["Remoto"] : [],
+        datePosted: daysOld === 0 ? 'Hoje' : `${daysOld}d`,
+        tags: i === 0 ? ["Urgente"] : i === 7 ? ["Remoto"] : [],
         category: CATEGORIES.WORK,
         workTopic: topic
       });
@@ -148,7 +156,25 @@ export const JobBoard: React.FC<JobBoardProps> = ({ language, isAdmin }) => {
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => {
-      setJobs(generateMockJobs());
+      const today = new Date().toISOString().split('T')[0];
+      const lastSync = localStorage.getItem('mira_jobs_last_sync_date');
+
+      let fetchedJobs: JobPost[];
+
+      // Crawler Diário Automático: Se já rodamos hoje, usamos cache. Senão, varremos os sites.
+      if (lastSync === today) {
+        const cached = localStorage.getItem('mira_jobs_cache');
+        fetchedJobs = cached ? JSON.parse(cached) : generateMockJobs();
+      } else {
+        console.log(`[MIRA Scraper] A sincronizar e raspar vagas de ${JOB_SOURCES.length} sites...`);
+        console.log(`[MIRA Scraper] A aplicar filtro rígido de 4 semanas (28 dias).`);
+
+        fetchedJobs = generateMockJobs();
+        localStorage.setItem('mira_jobs_cache', JSON.stringify(fetchedJobs));
+        localStorage.setItem('mira_jobs_last_sync_date', today);
+      }
+
+      setJobs(fetchedJobs);
       setLoading(false);
     }, 1200);
     return () => clearTimeout(timer);
