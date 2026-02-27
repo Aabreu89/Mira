@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { JobPost, WORK_TOPICS, CATEGORIES } from '../types';
 import { Search, Briefcase, ExternalLink, MapPin, Building2, TrendingUp, ChevronDown, Filter, X, SlidersHorizontal, Map as MapIcon, Globe, FileText } from 'lucide-react';
 import { analytics } from '../services/analyticsService';
+import { supabase } from '../lib/supabase';
 import { t } from '../utils/translations';
 
 interface JobBoardProps {
@@ -22,128 +23,7 @@ const PT_LOCATIONS = [
   "Todos", "Lisboa", "Porto", "Braga", "Setúbal", "Faro", "Coimbra", "Aveiro", "Remoto", "Leiria", "Santarém", "Viseu", "Évora"
 ];
 
-const JOB_SOURCES = [
-  "www.alertaemprego.pt",
-  "http://cantinhodoemprego.pt/",
-  "https://www.emprego.pt/",
-  "https://emprego.sapo.pt/",
-  "https://emprego.trovit.pt/",
-  "https://www.empregoestagios.com/",
-  "https://emprego.rumos.pt/",
-  "https://expressoemprego.pt/",
-  "https://pt.jobrapido.com/",
-  "https://twitter.com/ofertasemprego",
-  "https://www.bep.gov.pt",
-  "https://www.bonsempregos.com/",
-  "https://www.careerjet.pt/",
-  "http://www.cargadetrabalhos.net/",
-  "https://www.custojusto.pt/portugal/emprego-oferta",
-  "http://www.empregosonline.pt/",
-  "https://www.formacao20.com/",
-  "http://www.gepe.pt/",
-  "https://www.hays.pt/",
-  "http://www.icote.pt/",
-  "https://pt.indeed.com/",
-  "https://www.itjobs.pt/",
-  "https://www.net-empregos.com/",
-  "https://www.olx.pt/emprego/",
-  "https://www.ofertas-emprego.net/",
-  "https://www.gruporhmais.pt/",
-  "https://www.ofertasdeemprego.pt/",
-  "https://www.turijobs.pt/",
-  "https://www.web-emprego.com/",
-  "https://pt.linkedin.com/",
-  "https://www.glassdoor.com/Job/portugal",
-  "https://www.empregoxl.com/",
-  "http://www.empregosaude.pt/",
-  "https://jobtide.com",
-  "https://pt.jooble.org/",
-  "https://www.jobatus.pt/i",
-  "https://www.feedempregos.pt/search/label/Emprego",
-  "https://www.adecco.pt/",
-  "https://www.cnorey.com/",
-  "https://www.eurofirms.pt/",
-  "https://flexiplan.eulen.com/pt/",
-  "https://www.gowork.pt/pt/",
-  "http://greatjob.pt/",
-  "http://hospedeiras-portugal.pt",
-  "https://www.manpowergroup.pt",
-  "https://www.michaelpage.pt/",
-  "https://multipessoal.pt/",
-  "http://www.multitempo.pt/",
-  "http://outplex.pt/",
-  "http://www.psicotempos.pt/",
-  "https://www.randstad.pt/",
-  "https://slot.pt/",
-  "https://www.vertentehumana.pt/",
-  "https://www.talenter.com/",
-  "https://bolsadeempregabilidade.pt/",
-  "Recrutamento.trivalor.pt/",
-  "www.timing.pt/",
-  "www.triangulu.pt/ofertas/",
-];
 
-const getSourceName = (url: string) => {
-  try {
-    const domain = url.replace('https://', '').replace('http://', '').replace('www.', '').split(/[/?#]/)[0];
-    const parts = domain.split('.');
-    const name = parts.length >= 2 ? parts[0] : domain;
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  } catch {
-    return "Fonte Externa";
-  }
-};
-
-const generateMockJobs = (): JobPost[] => {
-  const titlesByCategory: Record<string, string[]> = {
-    "Tecnologia, Dados & IA": ["Engenheiro de Dados", "Fullstack Developer", "Especialista em Cibersegurança", "Analista de Sistemas", "Prompt Engineer"],
-    "Saúde & Cuidados Continuados": ["Enfermeiro de Urgência", "Técnico de Auxiliar de Saúde", "Fisioterapeuta", "Médico Dentista", "Assistente de Apoio Domiciliário"],
-    "Construção Civil & Engenharia": ["Chefe de Equipa de Pedreiros", "Engenheiro Eletrotécnico", "Operador de Grua", "Encarregado de Obra", "Técnico de AVAC"],
-    "Turismo, Hotelaria & Restauração": ["Recepcionista Bilíngue", "Sub-chefe de Cozinha", "Empregado de Andares", "Barman", "Gestor de Alojamento Local"],
-    "Indústria, Production & Manufatura": ["Operador de Linha de Produção", "Técnico de Manutenção", "Soldador Certificado", "Operador de CNC", "Responsável de Turno"],
-    "Logística, Transportes & Armazém": ["Motorista de Pesados C+E", "Fiel de Armazém", "Gestor de Operações Logísticas", "Operador de Empilhador", "Estafeta de Logística Urbana"],
-    "Comércio, Vendas & Retalho": ["Store Manager", "Assistente de Vendas", "Caixa de Supermercado", "Promotor Comercial", "Merchandiser"],
-    "Administrativo, Gestão & RH": ["Técnico Administrativo", "Contabilista Junior", "Recrutador Especializado", "Secretariado de Direção", "Gestor de Projetos"],
-    "Limpeza, Segurança & Serviços": ["Técnico de Limpeza Especializada", "Vigilante Certificado", "Jardineiro", "Auxiliar de Manutenção Predial", "Pest Control Specialist"],
-    "Educação & Formação Profissional": ["Formador de Línguas", "Educador de Infância", "Tutor Académico", "Coordenador Pedagógico"],
-    "Artes, Design & Multimédia": ["Graphic Designer", "Video Editor", "Content Creator", "UX Designer"],
-    "Agricultura, Pesca & Pecuária": ["Trabalhador Agrícola", "Técnico Agrícola", "Operador de Máquinas Florestais"],
-    "Apoio Social & Terceiro Setor": ["Assistente Social", "Mediador Intercultural", "Técnico de ONGs"],
-    "Energia & Sustentabilidade": ["Técnico de Painéis Solares", "Gestor de Eficiência Energética", "Técnico Ambiental"],
-    "Trabalho Remoto & Freelancing": ["Virtual Assistant", "Customer Success Representative", "Tradutor Freelance"]
-  };
-
-  const allJobs: JobPost[] = [];
-
-  WORK_TOPICS.forEach((topic) => {
-    const titles = titlesByCategory[topic] || ["Profissional Qualificado", "Colaborador Operacional", "Especialista Setorial"];
-
-    // Simular o crawler passando por vários anúncios
-    for (let i = 0; i < 8; i++) {
-      const sourceUrl = JOB_SOURCES[Math.floor(Math.random() * JOB_SOURCES.length)];
-
-      // Simula a idade da vaga no site original (0 a 45 dias)
-      const daysOld = Math.floor(Math.random() * 45);
-
-      // REGRA OBRIGATÓRIA: Vagas com mais de 4 semanas (28 dias) não entram na plataforma.
-      if (daysOld > 28) continue;
-
-      allJobs.push({
-        id: `job-${topic.substring(0, 3)}-${i}-${Math.random().toString(36).substr(2, 5)}`,
-        title: titles[i % titles.length],
-        location: PT_LOCATIONS[Math.floor(Math.random() * (PT_LOCATIONS.length - 1)) + 1],
-        sourceName: getSourceName(sourceUrl),
-        sourceUrl: sourceUrl.startsWith('http') ? sourceUrl : `https://${sourceUrl}`,
-        datePosted: daysOld === 0 ? 'Hoje' : `${daysOld}d`,
-        tags: i === 0 ? ["Urgente"] : i === 7 ? ["Remoto"] : [],
-        category: CATEGORIES.WORK,
-        workTopic: topic
-      });
-    }
-  });
-
-  return allJobs.sort(() => Math.random() - 0.5);
-};
 
 export const JobBoard: React.FC<JobBoardProps> = ({ language, isAdmin }) => {
   const [activeTab, setActiveTab] = useState<'jobs' | 'trends'>('jobs');
@@ -154,30 +34,34 @@ export const JobBoard: React.FC<JobBoardProps> = ({ language, isAdmin }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      const today = new Date().toISOString().split('T')[0];
-      const lastSync = localStorage.getItem('mira_jobs_last_sync_date');
+    const fetchJobs = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.from('job_posts').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
 
-      let fetchedJobs: JobPost[];
-
-      // Crawler Diário Automático: Se já rodamos hoje, usamos cache. Senão, varremos os sites.
-      if (lastSync === today) {
-        const cached = localStorage.getItem('mira_jobs_cache');
-        fetchedJobs = cached ? JSON.parse(cached) : generateMockJobs();
-      } else {
-        console.log(`[MIRA Scraper] A sincronizar e raspar vagas de ${JOB_SOURCES.length} sites...`);
-        console.log(`[MIRA Scraper] A aplicar filtro rígido de 4 semanas (28 dias).`);
-
-        fetchedJobs = generateMockJobs();
-        localStorage.setItem('mira_jobs_cache', JSON.stringify(fetchedJobs));
-        localStorage.setItem('mira_jobs_last_sync_date', today);
+        if (data && data.length > 0) {
+          const formattedJobs: JobPost[] = data.map(dbJob => ({
+            id: dbJob.id,
+            title: dbJob.title,
+            location: dbJob.location,
+            sourceName: dbJob.source_name,
+            sourceUrl: dbJob.source_url,
+            datePosted: 'Hoje', // Or you could calculate from dbJob.created_at
+            tags: dbJob.tags || [],
+            category: dbJob.category as typeof CATEGORIES[keyof typeof CATEGORIES],
+            workTopic: dbJob.work_topic
+          }));
+          setJobs(formattedJobs);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar as vagas reais do Supabase:", err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setJobs(fetchedJobs);
-      setLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
+    fetchJobs();
   }, []);
 
   const filteredJobs = jobs.filter(job => {

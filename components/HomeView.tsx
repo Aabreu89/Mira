@@ -1,8 +1,8 @@
 
 import React, { useMemo, useState } from 'react';
 import { ViewType, User as UserType, Post, NotificationPreferences } from '../types';
-import { 
-  Briefcase, Map as MapIcon, FileText, 
+import {
+  Briefcase, Map as MapIcon, FileText,
   Bell, HeartHandshake, Bot, ShieldCheck,
   Heart, BookOpen, User, CheckCircle2, MessageSquare, Sparkles, ArrowRight, BellRing, X, ToggleLeft, ToggleRight, ShieldAlert, AlertTriangle, Activity, Scale, Newspaper, ShieldQuestion, LogOut
 } from 'lucide-react';
@@ -17,29 +17,29 @@ interface HomeViewProps {
 }
 
 const MOCK_POSTS: Post[] = [
-    {
-      id: '1',
-      authorId: 'a1',
-      authorName: 'Guia de Portugal',
-      authorAvatar: 'https://i.pravatar.cc/150?u=guia',
-      authorBio: 'Especialista em documentação AIMA.',
-      title: 'NIF em 24h em 2026: O que mudou',
-      content: 'Pessoal, as novas regras de 2026 para o NIF digital funcionam muito bem. Validaram meu representante em 10 minutos pelo novo portal MIRA-GOV! 🇵🇹✨ #NIF2026 #Portugal #Digital',
-      category: 'Documentos & Regularização',
-      backgroundImage: 'https://images.unsplash.com/photo-1583922606661-0822ed0bd916?w=800&q=80',
-      tags: ['NIF', '2026', 'Portugal'],
-      likes: 842,
-      comments: [],
-      isVerified: true,
-      isFraudWarning: false,
-      timestamp: '45 min',
-      reports: 0,
-      urgency: 1,
-      validationStatus: "validated",
-      usefulVotes: 156,
-      fakeVotes: 0,
-      reviewVotes: 5
-    }
+  {
+    id: '1',
+    authorId: 'a1',
+    authorName: 'Guia de Portugal',
+    authorAvatar: 'https://i.pravatar.cc/150?u=guia',
+    authorBio: 'Especialista em documentação AIMA.',
+    title: 'NIF em 24h em 2026: O que mudou',
+    content: 'Pessoal, as novas regras de 2026 para o NIF digital funcionam muito bem. Validaram meu representante em 10 minutos pelo novo portal MIRA-GOV! 🇵🇹✨ #NIF2026 #Portugal #Digital',
+    category: 'Documentos & Regularização',
+    backgroundImage: 'https://images.unsplash.com/photo-1583922606661-0822ed0bd916?w=800&q=80',
+    tags: ['NIF', '2026', 'Portugal'],
+    likes: 842,
+    comments: [],
+    isVerified: true,
+    isFraudWarning: false,
+    timestamp: '45 min',
+    reports: 0,
+    urgency: 1,
+    validationStatus: "validated",
+    usefulVotes: 156,
+    fakeVotes: 0,
+    reviewVotes: 5
+  }
 ];
 
 export const HomeView: React.FC<HomeViewProps> = ({ user, onViewChange, language, onLogout }) => {
@@ -47,7 +47,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ user, onViewChange, language
   const [prefs, setPrefs] = useState<NotificationPreferences>({
     OFFICIAL_AIMA: true,
     LEGAL_CHANGES: true,
-    DOC_EXPIRATION: true,
     JOB_MATCHES: true,
     COMMUNITY_REPUTATION: true,
     MAP_URGENCY: true,
@@ -85,14 +84,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ user, onViewChange, language
                 <div className="p-3 bg-mira-orange text-white rounded-2xl shadow-lg"><Bell size={24} strokeWidth={3} /></div>
                 <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">GESTÃO DE ALERTAS</h3>
               </div>
-              <button onClick={() => setShowNotifSettings(false)} className="p-2 hover:bg-slate-100 rounded-full transition-all"><X size={24} className="text-slate-400"/></button>
+              <button onClick={() => setShowNotifSettings(false)} className="p-2 hover:bg-slate-100 rounded-full transition-all"><X size={24} className="text-slate-400" /></button>
             </div>
 
             <div className="space-y-4">
               {[
                 { id: 'OFFICIAL_AIMA', label: 'Direto da AIMA/Gov', icon: ShieldCheck, color: 'text-indigo-600' },
                 { id: 'LEGAL_CHANGES', label: 'Leis em Tempo Real', icon: Scale, color: 'text-mira-blue' },
-                { id: 'DOC_EXPIRATION', label: 'Validade de Documentos', icon: FileText, color: 'text-red-500' },
                 { id: 'JOB_MATCHES', label: 'Vagas do seu Perfil', icon: Briefcase, color: 'text-mira-orange' },
                 { id: 'MAP_URGENCY', label: 'Urgências nos Balcões', icon: AlertTriangle, color: 'text-red-600' },
                 { id: 'SOCIAL_CONNECT', label: 'Interações Comunitárias', icon: MessageSquare, color: 'text-mira-green' },
@@ -123,13 +121,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ user, onViewChange, language
               <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </button>
             <div className="flex items-center gap-4">
-                <div className="cursor-pointer" onClick={() => onViewChange(ViewType.PROFILE)}>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">MIRA APP 2026</p>
-                  <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">{user.name}</h1>
-                </div>
-                <button onClick={() => setShowNotifSettings(true)} className="p-3 bg-white rounded-2xl shadow-xl border border-slate-50 text-mira-orange active:scale-90 transition-all">
-                    <BellRing size={22} strokeWidth={2.5} />
-                </button>
+              <div className="cursor-pointer" onClick={() => onViewChange(ViewType.PROFILE)}>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">MIRA APP 2026</p>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">{user.name}</h1>
+              </div>
+              <button onClick={() => setShowNotifSettings(true)} className="p-3 bg-white rounded-2xl shadow-xl border border-slate-50 text-mira-orange active:scale-90 transition-all">
+                <BellRing size={22} strokeWidth={2.5} />
+              </button>
             </div>
           </div>
         </div>
@@ -138,29 +136,29 @@ export const HomeView: React.FC<HomeViewProps> = ({ user, onViewChange, language
       <div className="px-6 py-12 space-y-12">
         {/* CAIXA IA REDUZIDA */}
         <section className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <div onClick={() => onViewChange(ViewType.ASSISTANT)} className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl group cursor-pointer active:scale-[0.98] transition-all border border-white/5">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-[60px] -mr-16 -mt-16 transition-all group-hover:scale-125 duration-1000"></div>
-                <div className="relative z-10 space-y-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-mira-blue/20 backdrop-blur-2xl border border-white/10 rounded-[1rem] flex items-center justify-center shadow-2xl">
-                            <Bot size={24} className="text-mira-blue" />
-                        </div>
-                        <div className="bg-white/20 backdrop-blur-xl px-3 py-1 rounded-full border border-white/10 flex items-center gap-2">
-                            <Sparkles size={10} className="text-mira-yellow fill-mira-yellow" />
-                            <span className="text-[8px] font-black uppercase tracking-widest">{t('home_ai_badge', language)}</span>
-                        </div>
-                    </div>
-                    <div className="space-y-1">
-                        <h2 className="text-2xl font-black tracking-tighter leading-none">{t('home_ai_cta_title', language)}</h2>
-                        <p className="text-[11px] font-bold text-slate-300 opacity-80 leading-relaxed max-w-[200px]">{t('home_ai_cta_desc', language)}</p>
-                    </div>
-                    <div className="pt-2">
-                        <div className="bg-white text-slate-900 px-6 py-2.5 rounded-[1.2rem] font-black text-[10px] uppercase tracking-widest inline-flex items-center gap-2 group-hover:gap-4 transition-all">
-                            {t('home_ai_btn', language)} <ArrowRight size={14} strokeWidth={3} />
-                        </div>
-                    </div>
+          <div onClick={() => onViewChange(ViewType.ASSISTANT)} className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl group cursor-pointer active:scale-[0.98] transition-all border border-white/5">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-[60px] -mr-16 -mt-16 transition-all group-hover:scale-125 duration-1000"></div>
+            <div className="relative z-10 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-mira-blue/20 backdrop-blur-2xl border border-white/10 rounded-[1rem] flex items-center justify-center shadow-2xl">
+                  <Bot size={24} className="text-mira-blue" />
                 </div>
+                <div className="bg-white/20 backdrop-blur-xl px-3 py-1 rounded-full border border-white/10 flex items-center gap-2">
+                  <Sparkles size={10} className="text-mira-yellow fill-mira-yellow" />
+                  <span className="text-[8px] font-black uppercase tracking-widest">{t('home_ai_badge', language)}</span>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-2xl font-black tracking-tighter leading-none">{t('home_ai_cta_title', language)}</h2>
+                <p className="text-[11px] font-bold text-slate-300 opacity-80 leading-relaxed max-w-[200px]">{t('home_ai_cta_desc', language)}</p>
+              </div>
+              <div className="pt-2">
+                <div className="bg-white text-slate-900 px-6 py-2.5 rounded-[1.2rem] font-black text-[10px] uppercase tracking-widest inline-flex items-center gap-2 group-hover:gap-4 transition-all">
+                  {t('home_ai_btn', language)} <ArrowRight size={14} strokeWidth={3} />
+                </div>
+              </div>
             </div>
+          </div>
         </section>
 
         {/* ECOSYSTEM Grid */}
@@ -188,31 +186,31 @@ export const HomeView: React.FC<HomeViewProps> = ({ user, onViewChange, language
             <button onClick={() => onViewChange(ViewType.COMMUNITY)} className="text-[10px] font-black text-mira-blue uppercase tracking-widest px-6 py-2.5 bg-mira-blue-pastel rounded-2xl transition-all shadow-sm active:scale-95">Ver Tudo</button>
           </div>
           <div className="grid grid-cols-1 gap-8">
-             {relevantPosts.map(post => (
-                <div key={post.id} onClick={() => onViewChange(ViewType.COMMUNITY)} className="relative h-60 rounded-[3.5rem] overflow-hidden shadow-xl group cursor-pointer border border-slate-100">
-                    <img src={post.backgroundImage} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
-                    <div className="absolute bottom-8 left-8 right-8 z-10">
-                        <div className="flex items-center gap-3 mb-4">
-                            <img src={post.authorAvatar} alt="" className="w-8 h-8 rounded-full border-2 border-white/40 shadow-sm" referrerPolicy="no-referrer" />
-                            <span className="text-xs font-black text-white/90 uppercase tracking-widest">{post.authorName}</span>
-                        </div>
-                        <h4 className="font-black text-white text-xl tracking-tight uppercase drop-shadow-lg">{post.title}</h4>
-                    </div>
-                 </div>
-             ))}
+            {relevantPosts.map(post => (
+              <div key={post.id} onClick={() => onViewChange(ViewType.COMMUNITY)} className="relative h-60 rounded-[3.5rem] overflow-hidden shadow-xl group cursor-pointer border border-slate-100">
+                <img src={post.backgroundImage} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+                <div className="absolute bottom-8 left-8 right-8 z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <img src={post.authorAvatar} alt="" className="w-8 h-8 rounded-full border-2 border-white/40 shadow-sm" referrerPolicy="no-referrer" />
+                    <span className="text-xs font-black text-white/90 uppercase tracking-widest">{post.authorName}</span>
+                  </div>
+                  <h4 className="font-black text-white text-xl tracking-tight uppercase drop-shadow-lg">{post.title}</h4>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* Rights Reserved Footer */}
         <footer className="pt-12 pb-20 border-t border-slate-50 text-center space-y-4">
-            <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">
-                MIRA - COPYWRITE 2026, Amanda Silva Abreu.
-            </p>
-            <div className="flex justify-center gap-6">
-                <button onClick={() => onViewChange(ViewType.PRIVACY)} className="text-[8px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">Políticas & Jurídico</button>
-                <button className="text-[8px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">Termos de Uso</button>
-            </div>
+          <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">
+            MIRA - COPYWRITE 2026, Amanda Silva Abreu.
+          </p>
+          <div className="flex justify-center gap-6">
+            <button onClick={() => onViewChange(ViewType.PRIVACY)} className="text-[8px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">Políticas & Jurídico</button>
+            <button className="text-[8px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">Termos de Uso</button>
+          </div>
         </footer>
       </div>
     </div>

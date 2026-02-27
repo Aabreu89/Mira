@@ -11,6 +11,7 @@ import {
 import { generateOfficialPDF } from '../utils/pdfGenerator';
 import { analytics } from '../services/analyticsService';
 import { t } from '../utils/translations';
+import { supabase } from '../lib/supabase';
 import { templates, serviceGuides } from '../utils/documentsDatabase';
 interface DocumentAssistantProps {
     tasks: DocumentTask[];
@@ -27,6 +28,7 @@ interface DocumentAssistantProps {
 }
 
 export const DocumentAssistant: React.FC<DocumentAssistantProps> = ({
+    addToHistory,
     onEarnPoints,
     onViewChange,
     language
@@ -61,12 +63,75 @@ export const DocumentAssistant: React.FC<DocumentAssistantProps> = ({
     const generatePDF = async () => {
         if (!selectedTemplate) return;
         setIsGenerating(true);
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        const pdfResult = await generateOfficialPDF(selectedTemplate.title, formData);
-        setGeneratedFile({ save: (n: string) => { const l = document.createElement('a'); l.href = pdfResult.pdfUrl; l.download = n; l.click(); }, url: pdfResult.pdfUrl, filename: pdfResult.filename });
-        setIsGenerating(false);
-        setActiveScreen('success');
-        onEarnPoints(50);
+        try {
+            const pdfResult = await generateOfficialPDF(selectedTemplate.title, formData);
+
+            // Tenta obter o usuário atual para upload no Supabase
+            const { data: { session } } = await supabase.auth.getSession();
+            let publicUrl = pdfResult.pdfUrl;
+
+            if (session?.user) {
+                const userId = session.user.id;
+                const fileExt = pdfResult.filename.split('.').pop() || 'pdf';
+                const fileId = Math.random().toString(36).substring(2, 10);
+                const filePath = `${userId}/doc_${fileId}.${fileExt}`;
+
+                // Upload real para o Supabase Storage
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('documents')
+                    .upload(filePath, pdfResult.blob, {
+                        contentType: 'application/pdf',
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (!uploadError && uploadData) {
+                    const { data: { publicUrl: storageUrl } } = supabase.storage
+                        .from('documents')
+                        .getPublicUrl(filePath);
+
+                    publicUrl = storageUrl;
+
+                    // Salva histórico no banco de dados real
+                    await supabase.from('user_documents').insert([{
+                        user_id: userId,
+                        title: selectedTemplate.title,
+                        form_data: formData,
+                        file_url: storageUrl,
+                        is_draft: false
+                    }]);
+                } else {
+                    console.error("Erro ao fazer upload para Storage:", uploadError);
+                }
+            }
+
+            setGeneratedFile({
+                save: (n: string) => {
+                    const l = document.createElement('a');
+                    l.href = pdfResult.pdfUrl; // Lida com blob local para download imediato
+                    l.download = n;
+                    l.click();
+                },
+                url: publicUrl,
+                filename: pdfResult.filename
+            });
+
+            // Adicionalmente salva no histórico local, caso usado por outros componentes
+            addToHistory({
+                id: Math.random().toString(36).substr(2, 9),
+                title: selectedTemplate.title,
+                category: selectedTemplate.category,
+                date: new Date().toISOString(),
+                fileUrl: publicUrl
+            });
+
+            onEarnPoints(50);
+            setActiveScreen('success');
+        } catch (error) {
+            console.error("Erro na geração de documento:", error);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     return (

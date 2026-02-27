@@ -4,6 +4,29 @@ import { supabase } from '../lib/supabase';
 class AnalyticsService {
   private logs: AppActivityLog[] = [];
 
+  constructor() {
+    this.loadLogs();
+  }
+
+  async loadLogs() {
+    try {
+      const { data, error } = await supabase.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(1000);
+      if (error) throw error;
+      if (data) {
+        this.logs = data.map((d: any) => ({
+          id: d.id,
+          userId: d.user_id,
+          action: d.action,
+          category: d.category,
+          timestamp: d.created_at,
+          metadata: d.metadata
+        }));
+      }
+    } catch (e) {
+      console.error('Error loading analytics logs', e);
+    }
+  }
+
   async track(action: AppActivityLog['action'], userId: string, category?: string, metadata?: any) {
     const log: AppActivityLog = {
       id: Math.random().toString(36).substr(2, 9),

@@ -31,53 +31,7 @@ const INITIAL_NOTIFS: NotificationPreferences = {
   SOCIAL_CONNECT: true
 };
 
-const INITIAL_COURSES: Course[] = [
-  {
-    id: 'c1',
-    title: 'Português Língua de Acolhimento (AAEIF 2026)',
-    description: 'Curso certificado para fins de residência e cidadania em 2026.',
-    category: CATEGORIES.EDUCATION,
-    type: 'Presencial / Online',
-    duration: '60h',
-    image: 'https://images.unsplash.com/photo-1544652478-6653e09f18a2?w=800&q=80'
-  },
-  {
-    id: 'c2',
-    title: 'Inglês para Integração Europeia 2026',
-    description: 'Melhore as suas oportunidades no mercado europeu com este curso intensivo.',
-    category: CATEGORIES.EDUCATION,
-    type: 'Online',
-    duration: '40h',
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80'
-  }
-];
 
-const COMMUNITY_STARTING_POSTS: Post[] = [
-  {
-    id: '1',
-    authorId: 'a1',
-    authorName: 'Guia de Portugal',
-    authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-    authorBio: 'Especialista em documentação AIMA 2026.',
-    title: 'NIF em 24h em 2026: Guia Rápido',
-    content: 'O processo digital de 2026 mudou tudo. Agora basta fazer o upload do Passaporte e o NIF sai no dia seguinte pelo portal MIRA-GOV. Já testaram?',
-    category: 'Documentos & Regularização',
-    backgroundImage: 'https://images.unsplash.com/photo-1583922606661-0822ed0bd916?w=800&q=80',
-    tags: ['NIF', '2026', 'Portugal'],
-    likes: 842,
-    comments: [{ id: 'c1', authorId: 'u2', authorName: 'Carlos M.', authorAvatar: 'https://i.pravatar.cc/150?u=carlos', content: 'Incrível! Já vou fazer o meu.', timestamp: '1h', likes: 12 }],
-    isVerified: true,
-    isFraudWarning: false,
-    location: 'Lisboa, Portugal',
-    timestamp: '45 min',
-    reports: 0,
-    urgency: 1,
-    validationStatus: "validated",
-    usefulVotes: 156,
-    fakeVotes: 0,
-    reviewVotes: 5
-  }
-];
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -96,13 +50,13 @@ const App: React.FC = () => {
   const [docDrafts, setDocDrafts] = useState<any[]>([]);
   const [docHistory, setDocHistory] = useState<GeneratedDocument[]>([]);
   const [savedPostsIds, setSavedPostsIds] = useState<Set<string>>(new Set());
-  const [courses, setCourses] = useState<Course[]>(INITIAL_COURSES);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [masterPosts, setMasterPosts] = useState<Post[]>(() => {
     const saved = localStorage.getItem('mira_community_posts');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { }
     }
-    return COMMUNITY_STARTING_POSTS;
+    return [];
   });
 
   useEffect(() => {
@@ -119,6 +73,23 @@ const App: React.FC = () => {
       });
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    supabase.from('courses').select('*').then(({ data }) => {
+      if (data && data.length > 0) {
+        setCourses(data.map(item => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          category: item.category as any,
+          type: item.type,
+          duration: item.duration,
+          image: item.image_url || 'https://images.unsplash.com/photo-1544652478-6653e09f18a2?w=800&q=80',
+          link: item.link || undefined
+        })));
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {

@@ -190,6 +190,7 @@ const CommunityView: React.FC<CommunityViewProps> = ({
   const [reportForm, setReportForm] = useState({ name: user.name || '', email: user.email || '', reason: '' });
 
   const [activeStory, setActiveStory] = useState<Post | null>(null);
+  const [openPostMenu, setOpenPostMenu] = useState<string | null>(null);
 
   const topStories = useMemo(() => {
     return [...masterPosts].sort((a, b) => {
@@ -578,6 +579,7 @@ const CommunityView: React.FC<CommunityViewProps> = ({
           {filteredPosts.length > 0 ? filteredPosts.map(post => {
             const isPostLiked = likedPosts.has(post.id);
             const isPostSaved = savedPostsIds.has(post.id);
+            const isAuthor = post.authorId === user.id || post.authorName === user.name;
             const fontSizeClass = post.content.length < 80 ? 'text-2xl' : post.content.length < 160 ? 'text-lg' : 'text-sm';
             return (
               <div key={post.id} id={`post-${post.id}`} className="bg-white rounded-[3.5rem] overflow-hidden shadow-sm border border-slate-100 group transition-all hover:shadow-2xl">
@@ -585,15 +587,35 @@ const CommunityView: React.FC<CommunityViewProps> = ({
                   <img src={post.backgroundImage} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Post Visual" referrerPolicy="no-referrer" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/60"></div>
 
-                  {/* Metadata Header - Nome menor que categoria como solicitado */}
+                  {/* Header: autor + menu 3 pontos IG style */}
                   <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
                     <div onClick={() => openMemberProfile(post.authorId, post.authorName, post.authorAvatar)} className="flex items-center gap-2.5 bg-white/10 backdrop-blur-2xl p-1.5 pr-4 rounded-full border border-white/20 cursor-pointer active:scale-95 shadow-2xl group/author">
                       <img src={post.authorAvatar} className="w-8 h-8 rounded-full border border-white/40 shadow-sm" alt="" referrerPolicy="no-referrer" />
-                      <div className="text-white">
-                        <p className="text-[8px] font-black uppercase tracking-widest leading-none opacity-90 group-hover/author:opacity-100">{post.authorName}</p>
-                      </div>
+                      <p className="text-[8px] font-black text-white uppercase tracking-widest leading-none opacity-90">{post.authorName}</p>
                     </div>
-                    <span className="bg-mira-orange text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl border border-white/10">{t(getCategoryKey(post.category), language)}</span>
+
+                    <div className="relative">
+                      <button onClick={(e) => { e.stopPropagation(); setOpenPostMenu(openPostMenu === post.id ? null : post.id); }} className="w-9 h-9 bg-white/15 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 hover:bg-white/30 active:scale-90 transition-all shadow-lg">
+                        <span style={{ color: 'white', fontSize: '18px', fontWeight: 900, letterSpacing: '1px', lineHeight: '1' }}>&#xB7;&#xB7;&#xB7;</span>
+                      </button>
+                      {openPostMenu === post.id && (
+                        <div className="absolute right-0 top-11 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[190px] border border-slate-100" onClick={(e) => e.stopPropagation()}>
+                          <div className="px-5 pt-4 pb-2"><span className="text-[8px] font-black text-mira-orange uppercase tracking-widest">{t(getCategoryKey(post.category), language)}</span></div>
+                          <div className="h-px bg-slate-50 mx-4 mb-1" />
+                          {isAuthor ? (
+                            <button onClick={() => { setOpenPostMenu(null); handleDeletePost(post.id); }} className="w-full flex items-center gap-3 px-5 py-4 text-red-500 font-black text-xs uppercase tracking-wider hover:bg-red-50 transition-all text-left">
+                              <Trash2 size={16} /> Eliminar o meu post
+                            </button>
+                          ) : (
+                            <button onClick={() => { setOpenPostMenu(null); setReportingItem({ postId: post.id }); }} className="w-full flex items-center gap-3 px-5 py-4 text-slate-700 font-black text-xs uppercase tracking-wider hover:bg-slate-50 transition-all text-left">
+                              <ShieldAlert size={16} className="text-orange-500" /> Denunciar post
+                            </button>
+                          )}
+                          <div className="h-px bg-slate-50 mx-4" />
+                          <button onClick={() => setOpenPostMenu(null)} className="w-full text-center px-5 py-3 text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all">Cancelar</button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Post Content */}
@@ -651,16 +673,16 @@ const CommunityView: React.FC<CommunityViewProps> = ({
                         <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
                       </button>
 
-                      {post.authorId === user.id ? (
+                      {isAuthor ? (
                         <button
                           onClick={() => handleDeletePost(post.id)}
                           className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all relative -top-2"
                           title="Eliminar Publicação"
                         >
-                          <div className={`p-4 rounded-2xl transition-all bg-slate-50 text-slate-300 hover:bg-slate-900 hover:text-white`}>
+                          <div className="p-4 rounded-2xl transition-all bg-red-50 text-red-500 hover:bg-red-500 hover:text-white">
                             <Trash2 size={22} />
                           </div>
-                          <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
+                          <span className="text-[9px] font-black text-red-400 tracking-tighter">Apagar</span>
                         </button>
                       ) : (
                         <button

@@ -42,9 +42,18 @@ async function seed() {
 
     if (data.length === 0) {
         console.log('Inserting seed data into map_alerts...');
-        const { error: insertError } = await supabase.from('map_alerts').insert(
-            MOCK_SERVICES.map(s => ({ ...s, distance: '1km', avg_rating: 4.5, ratings: [] }))
-        );
+        const insertData = MOCK_SERVICES.map(s => {
+            const { lat, lng, type, email, ...rest } = s;
+            const contactInfo = {};
+            if (type) contactInfo.type = type;
+            if (email) contactInfo.email = email;
+            return {
+                ...rest,
+                coordinates: `POINT(${lng} ${lat})`,
+                contact_info: contactInfo
+            };
+        });
+        const { error: insertError } = await supabase.from('map_alerts').insert(insertData);
         if (insertError) console.error('Insert error:', insertError);
         else console.log('Seeded successfully!');
     } else {

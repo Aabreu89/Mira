@@ -8,7 +8,7 @@ import { jsPDF } from 'jspdf';
  */
 export async function generateOfficialPDF(templateTitle: string, data: Record<string, any>) {
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-  
+
   const margin = 25;
   const pageWidth = 210;
   const contentWidth = pageWidth - (margin * 2); // 160mm exatos
@@ -18,7 +18,7 @@ export async function generateOfficialPDF(templateTitle: string, data: Record<st
   doc.setTextColor(30, 41, 59);
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  
+
   // Split title manually to ensure it never overflows
   const titleLines = doc.splitTextToSize(templateTitle.toUpperCase(), contentWidth);
   doc.text(titleLines, margin, y);
@@ -49,8 +49,8 @@ export async function generateOfficialPDF(templateTitle: string, data: Record<st
   const extraDetails = Object.entries(data)
     .filter(([key, value]) => !skipFields.includes(key) && value)
     .map(([key, value]) => {
-        const label = key.replace(/_/g, ' ').toLowerCase();
-        return `Relativamente ao campo ${label}, declara-se o seguinte: ${value}.`;
+      const label = key.replace(/_/g, ' ').toLowerCase();
+      return `Relativamente ao campo ${label}, declara-se o seguinte: ${value}.`;
     }).join(' ');
 
   if (extraDetails) {
@@ -60,9 +60,9 @@ export async function generateOfficialPDF(templateTitle: string, data: Record<st
   narrative += ` O signatário declara, sob compromisso de honra, que os dados acima indicados são verdadeiros e assume total responsabilidade legal sobre os mesmos, em conformidade com a legislação portuguesa vigente.`;
 
   // Renderização com maxWidth garante que a margem direita seja respeitada
-  doc.text(narrative, margin, y, { 
-    maxWidth: contentWidth, 
-    align: 'justify' 
+  doc.text(narrative, margin, y, {
+    maxWidth: contentWidth,
+    align: 'justify'
   });
 
   // Calcula o espaço ocupado pelo texto para posicionar os próximos elementos
@@ -97,5 +97,9 @@ export async function generateOfficialPDF(templateTitle: string, data: Record<st
 
   const blob = doc.output('blob');
   const url = URL.createObjectURL(blob);
-  return { pdfUrl: url, filename: `${templateTitle.toLowerCase().replace(/\s+/g, '_')}.pdf` };
+  return {
+    pdfUrl: url,
+    filename: `${templateTitle.toLowerCase().replace(/\s+/g, '_')}.pdf`,
+    blob
+  };
 }

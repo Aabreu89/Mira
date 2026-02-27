@@ -32,7 +32,7 @@ export const communityService = {
                 id: c.id,
                 authorId: c.author_id,
                 authorName: c.profiles?.name || 'Membro Oculto',
-                authorAvatar: c.profiles?.avatar_url || '',
+                authorAvatar: c.profiles?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.profiles?.name || 'M')}&background=f97316&color=fff&bold=true&size=200`,
                 content: c.content,
                 timestamp: new Date(c.created_at).toLocaleDateString() + ' ' + new Date(c.created_at).toLocaleTimeString().slice(0, 5),
                 likes: 0 // Simplification for MVP
@@ -42,7 +42,7 @@ export const communityService = {
                 id: row.id,
                 authorId: row.author_id,
                 authorName: row.profiles?.name || 'Membro Oculto',
-                authorAvatar: row.profiles?.avatar_url || '',
+                authorAvatar: row.profiles?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(row.profiles?.name || 'M')}&background=f97316&color=fff&bold=true&size=200`,
                 authorBio: row.profiles?.bio || '',
                 title: row.title || 'Post Comunitário',
                 content: row.content,

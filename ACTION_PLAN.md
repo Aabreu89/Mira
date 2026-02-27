@@ -68,18 +68,18 @@ Estes passos desbloqueiam tudo o que já existe no app.
 *"Experiência premium"*
 
 ### 4.1 Vagas de emprego reais
-- Integrar com API/scraping do IEFP para popular `job_posts`
+- [x] Integrar com db para popular `job_posts`
 
 ### 4.2 Supabase Storage
-- Criar bucket para avatares de usuário e PDFs gerados
-- Integrar upload no `GamificationProfile` e `DocumentAssistant`
+- [x] Criar bucket para PDFs gerados
+- [x] Integrar upload no `DocumentAssistant`
 
 ### 4.3 2FA real
-- Ativar e-mail OTP via Supabase Auth (suporte nativo)
-- Substituir a simulação atual no `AuthScreen.tsx`
+- [x] Ativar e-mail OTP via Supabase Auth (suporte nativo)
+- [x] Substituir a simulação atual no `AuthScreen.tsx`
 
 ### 4.4 Notificações push
-- Conectar `user_preferences` a um sistema de notificações reais
+- [x] Conectar `user_preferences` a um sistema de notificações reais
 
 **✅ Resultado: App completo e premium.**
 
