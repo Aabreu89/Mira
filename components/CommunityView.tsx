@@ -152,14 +152,14 @@ interface CommunityViewProps {
 }
 
 const THEMED_IMAGES = [
-  'https://images.unsplash.com/photo-1557683316-973673baf926?w=800&q=80', // Gradient mesh
-  'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80', // Gradient colors
-  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80', // Liquid abstract
-  'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=800&q=80', // Dark neon geometric
-  'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&q=80', // Abstract art
-  'https://images.unsplash.com/photo-1506744626753-2fea904ca38f?w=800&q=80', // Nature moody
-  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80', // Mountain night
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80', // Tech Earth
+  'https://images.unsplash.com/photo-1558588942-930faae5a389?w=800&q=80', // Lisbon Tram (Portugal)
+  'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80', // Hands together (Community)
+  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80', // Group studying (Education)
+  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80', // Professional (Work)
+  'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80', // Team/People (Networking)
+  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80', // Laptop (Tech/Jobs)
+  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80', // Happy diverse people
+  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80'  // Office documents (Bureaucracy)
 ];
 
 
@@ -747,83 +747,102 @@ const CommunityView: React.FC<CommunityViewProps> = ({
 
       {/* NEW POST MODAL */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-[400] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-in zoom-in-95 duration-300">
-          <div className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col h-[90vh] border border-white/20">
+        <div className="fixed inset-0 z-[400] bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-6 animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-2xl sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl relative flex flex-col max-h-[90vh] sm:h-auto animate-in slide-in-from-bottom-8">
 
             {/* HEADER */}
-            <div className="flex justify-between items-center p-6 border-b border-slate-50 shrink-0 bg-white z-20 shadow-sm relative">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-mira-blue text-white rounded-xl flex items-center justify-center shadow-lg"><Plus size={24} strokeWidth={3} /></div>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter leading-none">NOVA PUBLICAÇÃO</h3>
+            <div className="flex justify-between items-center p-6 sm:p-8 border-b border-slate-100 shrink-0">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-mira-blue/10 text-mira-blue rounded-2xl flex items-center justify-center">
+                  <Plus size={24} strokeWidth={3} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">CRIAR PUBLICAÇÃO</h3>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Partilha a tua ajuda com todos</p>
+                </div>
               </div>
-              <button onClick={() => setShowCreateModal(false)} className="p-3 bg-slate-50 rounded-full hover:bg-slate-100 transition-all text-slate-500"><X size={20} /></button>
+              <button onClick={() => setShowCreateModal(false)} className="p-3 bg-slate-50 rounded-full hover:bg-slate-200 transition-colors text-slate-500">
+                <X size={20} />
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-8">
-
-              {/* Image Selection Grid */}
-              <div className="space-y-4 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 mb-4 shadow-inner">
-                <div className="flex items-center justify-between ml-2 mb-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2"><ImageIcon size={14} className="text-mira-blue" /> FUNDO DA PUBLICAÇÃO</label>
-                </div>
-                <div className="grid grid-cols-4 sm:grid-cols-4 gap-3 px-1">
-                  {THEMED_IMAGES.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedImage(img)}
-                      className={`w-full aspect-square rounded-2xl overflow-hidden border-4 transition-all relative group ${selectedImage === img ? 'border-mira-blue scale-100 shadow-xl opacity-100 z-10' : 'border-transparent opacity-50 hover:opacity-100 scale-95'}`}
-                    >
-                      <img src={img} className="w-full h-full object-cover" alt={`Opção de fundo ${idx + 1}`} referrerPolicy="no-referrer" />
-                      {selectedImage === img && (
-                        <div className="absolute inset-0 bg-mira-blue/30 flex items-center justify-center backdrop-blur-[2px]">
-                          <div className="bg-white rounded-full p-1 shadow-lg animate-in zoom-in">
-                            <CheckCircle2 size={20} className="text-mira-blue fill-white" />
-                          </div>
-                        </div>
-                      )}
-                      {selectedImage !== img && (
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Category Selection */}
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <CheckCircle2 size={12} className={selectedCategory ? "text-mira-green" : "text-red-500"} /> 1. CATEGORIA
-                </label>
-                <select required value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value as UnifiedCategory)} className={`w-full pl-6 pr-12 py-5 bg-slate-50 border-2 rounded-2xl text-xs font-black uppercase tracking-[0.1em] appearance-none outline-none focus:bg-white focus:border-mira-blue transition-all shadow-sm ${!selectedCategory ? 'border-red-50' : 'border-slate-100'}`}>
-                  <option value="">Selecione o tipo de conteúdo</option>
-                  {UNIFIED_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                </select>
-              </div>
+            <div className="flex-1 overflow-y-auto no-scrollbar p-6 sm:p-8 space-y-8">
 
               {/* Post Message */}
-              <div className="space-y-4 pb-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <MessageCircle size={12} className={newPostContent.length > 5 ? "text-mira-green" : "text-red-500"} /> 2. MENSAGEM DO POST
-                </label>
+              <div className="space-y-3">
                 <div className="relative">
-                  <textarea value={newPostContent} onChange={(e) => setNewPostContent(e.target.value)} className={`w-full h-44 p-6 bg-slate-50 border-2 rounded-[2rem] text-sm font-bold focus:bg-white focus:border-mira-blue transition-all shadow-inner outline-none resize-none leading-relaxed text-slate-800 ${newPostContent.length < 5 ? 'border-red-50' : 'border-slate-100'}`} placeholder="Escreva aqui de forma visível e resumida..." />
-                  <div className={`absolute bottom-4 right-6 text-[9px] font-black uppercase tracking-widest ${newPostContent.length > 250 ? 'text-red-500' : 'text-slate-400'}`}>
+                  <textarea
+                    value={newPostContent}
+                    onChange={(e) => setNewPostContent(e.target.value)}
+                    className="w-full h-40 sm:h-48 p-6 bg-slate-50/50 border-2 border-slate-100 rounded-[2rem] text-base sm:text-lg font-bold focus:bg-white focus:border-mira-blue transition-all outline-none resize-none leading-relaxed text-slate-800 placeholder:text-slate-300"
+                    placeholder="Em que estás a pensar? Como podes ajudar a comunidade hoje?"
+                  />
+                  <div className={`absolute bottom-6 right-6 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${newPostContent.length > 280 ? 'bg-red-50 text-red-500' : 'bg-slate-100 text-slate-400'}`}>
                     {newPostContent.length} / 300
                   </div>
                 </div>
               </div>
 
-            </div>
-          </div>
+              {/* Categorias & Fundo */}
+              <div className="grid grid-cols-1 gap-8">
 
-          {/* FOOTER ACTIONS */}
-          <div className="p-6 border-t border-slate-200 shrink-0 bg-slate-50 flex gap-4">
-            <button onClick={() => setShowCreateModal(false)} className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-colors">
-              Cancelar
-            </button>
-            <button onClick={handleCreatePost} disabled={!newPostContent.trim() || !selectedCategory} className="flex-1 bg-slate-900 hover:bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-3 shadow-2xl shadow-slate-900/20 active:scale-95 transition-all disabled:opacity-20 disabled:scale-100">
-              <Send size={18} /> Publicar na Rede
-            </button>
+                {/* Category Selection */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Categoria do Post</label>
+                  <div className="relative">
+                    <select
+                      required
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value as UnifiedCategory)}
+                      className="w-full pl-6 pr-12 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-black text-slate-700 uppercase tracking-widest appearance-none outline-none focus:bg-white focus:border-mira-blue transition-all cursor-pointer"
+                    >
+                      <option value="" disabled className="text-slate-300">Selecione o tema...</option>
+                      {UNIFIED_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    </select>
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={20} />
+                  </div>
+                </div>
+
+                {/* Image Selection Horizontal */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center ml-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fundo da Publicação</label>
+                  </div>
+                  <div className="flex gap-3 overflow-x-auto pb-4 pt-1 px-1 no-scrollbar snap-x">
+                    {THEMED_IMAGES.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedImage(img)}
+                        className={`min-w-[4.5rem] w-[4.5rem] h-[4.5rem] sm:min-w-[5rem] sm:w-[5rem] sm:h-[5rem] shrink-0 rounded-2xl overflow-hidden border-[3px] transition-all relative snap-center ${selectedImage === img ? 'border-mira-blue scale-105 shadow-xl shadow-mira-blue/20 opacity-100 z-10' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                      >
+                        <img src={img} className="w-full h-full object-cover" alt={`Fundo ${idx + 1}`} referrerPolicy="no-referrer" />
+                        {selectedImage === img && (
+                          <div className="absolute inset-0 bg-mira-blue/20 flex items-center justify-center backdrop-blur-[1px]">
+                            <CheckCircle2 size={24} className="text-white fill-mira-blue drop-shadow-md" />
+                          </div>
+                        )}
+                        {selectedImage !== img && (
+                          <div className="absolute inset-0 bg-black/10 transition-colors"></div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* FOOTER ACTIONS */}
+            <div className="p-6 sm:p-8 border-t border-slate-100 shrink-0 bg-white sm:rounded-b-[2.5rem]">
+              <button
+                onClick={handleCreatePost}
+                disabled={!newPostContent.trim() || !selectedCategory}
+                className="w-full bg-slate-900 hover:bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all disabled:opacity-30 disabled:active:scale-100"
+              >
+                <Send size={18} /> Publicar na Rede
+              </button>
+            </div>
           </div>
         </div>
       )}
