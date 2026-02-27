@@ -1,10 +1,10 @@
-
 import { AppActivityLog } from '../types';
+import { supabase } from '../lib/supabase';
 
 class AnalyticsService {
   private logs: AppActivityLog[] = [];
 
-  track(action: AppActivityLog['action'], userId: string, category?: string, metadata?: any) {
+  async track(action: AppActivityLog['action'], userId: string, category?: string, metadata?: any) {
     const log: AppActivityLog = {
       id: Math.random().toString(36).substr(2, 9),
       userId,
@@ -14,8 +14,19 @@ class AnalyticsService {
       metadata
     };
     this.logs.push(log);
-    // In a real app, this would be sent to a backend
+
+    // Log in development console
     console.debug('[MIRA Analytics]', log);
+
+    // Send to Supabase async without waiting
+    supabase.from('activity_logs').insert([{
+      user_id: userId,
+      action: action,
+      category: category || null,
+      metadata: metadata || {}
+    }]).then(({ error }) => {
+      if (error) console.error('Failed to save analytics to DB', error);
+    });
   }
 
   getLogs() {

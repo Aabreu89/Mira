@@ -3,6 +3,7 @@ import { MapAlert, CATEGORIES, UNIFIED_CATEGORIES } from '../types';
 import { MapPin, Star, AlertTriangle, X, Building2, Search, ChevronDown, MessageSquare, User, Send, Mail, ChevronUp, Phone, Info, Globe, PhoneCall, HeartPulse, Scale, GraduationCap, Briefcase, Landmark, ExternalLink, Map as MapIcon, List } from 'lucide-react';
 import { analytics } from '../services/analyticsService';
 import { t } from '../utils/translations';
+import { supabase } from '../lib/supabase';
 
 interface LocalServicesMapProps {
   language: string;
@@ -53,6 +54,39 @@ export const LocalServicesMap: React.FC<LocalServicesMapProps> = ({ language }) 
   const [reportService, setReportService] = useState<MapAlert | null>(null);
   const [reviewService, setReviewService] = useState<MapAlert | null>(null);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+  const [services, setServices] = useState<MapAlert[]>(MOCK_SERVICES);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase.from('map_alerts').select('*');
+        if (error) throw error;
+        if (data && data.length > 0) {
+          const mappedServices: MapAlert[] = data.map(item => ({
+            id: item.id,
+            title: item.title,
+            category: item.category,
+            lat: item.lat || 0,
+            lng: item.lng || 0,
+            distance: item.distance || 'N/A',
+            ratings: item.ratings || [],
+            avgRating: item.avg_rating || 0,
+            address: item.address || '',
+            city: item.city || '',
+            image: item.image,
+            phone: item.phone,
+            email: item.email,
+            type: item.type
+          }));
+          setServices([...MOCK_SERVICES, ...mappedServices]);
+        }
+      } catch (err) {
+        console.error('Error fetching map_alerts from Supabase:', err);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const toggleComments = (id: string) => {
     const newSet = new Set(expandedComments);
@@ -61,7 +95,7 @@ export const LocalServicesMap: React.FC<LocalServicesMapProps> = ({ language }) 
     setExpandedComments(newSet);
   };
 
-  const filteredServices = MOCK_SERVICES.filter(s => {
+  const filteredServices = services.filter(s => {
     const matchesSearch = s.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.city.toLowerCase().includes(searchTerm.toLowerCase());
