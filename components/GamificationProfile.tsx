@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { User, Comment, ForumPost, ViewType, Badge, Post } from '../types';
-import { FileText, Bookmark, Shield, CheckCircle2, Heart, Zap, Star, X, LogOut, ChevronRight, Award, Flame, UserCheck, ShieldAlert, Book, MapPin, Activity, Edit2, Check, CalendarCheck } from 'lucide-react';
+import { FileText, Bookmark, Shield, CheckCircle2, Heart, Zap, Star, X, LogOut, ChevronRight, Award, Flame, UserCheck, ShieldAlert, Book, MapPin, Activity, Edit2, Check, CalendarCheck, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface GamificationProfileProps {
@@ -20,6 +20,7 @@ interface GamificationProfileProps {
     language: string;
     onNavigateToPost: (postId: string) => void;
     onViewChange: (view: ViewType) => void;
+    onDeletePost?: (postId: string) => void;
     onLogout: () => void;
 }
 
@@ -54,7 +55,23 @@ const PREDEFINED_AVATARS = [
     "https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?w=400&h=400&fit=crop",
     "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop",
     "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop"
+    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=400&h=400&fit=crop",
+    // Black Women
+    "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1574701148212-8518049c7b2c?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1589156288859-f0cb0d82b065?w=400&h=400&fit=crop",
+    // Elderly Women
+    "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1505033575518-a36ea2ef75ae?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1543165365-07232ed12fad?w=400&h=400&fit=crop",
+    // Indigenous/Diverse
+    "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1610216705422-caa3fcb6d158?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1542206395-9feb3edaa68d?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop"
 ];
 
 const BadgeIcon = ({ icon, unlocked }: { icon: string, unlocked: boolean }) => {
@@ -84,6 +101,7 @@ export const GamificationProfile: React.FC<GamificationProfileProps> = ({
     savedPosts = [],
     onNavigateToPost,
     onViewChange,
+    onDeletePost,
     onLogout
 }) => {
     const [activeTab, setActiveTab] = useState<'posts' | 'badges' | 'verified'>('posts');
@@ -93,32 +111,6 @@ export const GamificationProfile: React.FC<GamificationProfileProps> = ({
     const [editAvatar, setEditAvatar] = useState(user?.avatar || '');
 
     const [isSaving, setIsSaving] = useState(false);
-    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-
-    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        try {
-            if (!event.target.files || event.target.files.length === 0 || !user) return;
-            const file = event.target.files[0];
-            setIsUploadingAvatar(true);
-
-            const fileExt = file.name.split('.').pop() || 'png';
-            const fileName = `${user.id}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-
-            const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
-
-            if (uploadError) throw uploadError;
-
-            const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
-            if (data?.publicUrl) {
-                setEditAvatar(data.publicUrl);
-            }
-        } catch (error) {
-            console.error('Erro ao subir imagem:', error);
-            alert('Não foi possível fazer upload. Verifique se o bucket "avatars" existe e é público no Supabase.');
-        } finally {
-            setIsUploadingAvatar(false);
-        }
-    };
 
     const handleSaveProfile = async () => {
         if (!user) return;
@@ -229,10 +221,6 @@ export const GamificationProfile: React.FC<GamificationProfileProps> = ({
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                         <Star size={12} className="text-mira-yellow fill-mira-yellow" /> Foto de Perfil
                                     </p>
-                                    <label className={`text-[9px] bg-slate-100 text-slate-600 px-4 py-2 rounded-xl font-black uppercase tracking-widest cursor-pointer hover:bg-slate-200 transition-colors flex items-center gap-2 ${isUploadingAvatar ? 'opacity-50 pointer-events-none' : ''}`}>
-                                        <FileText size={12} /> {isUploadingAvatar ? 'A CARREGAR...' : 'FAZER UPLOAD'}
-                                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={isUploadingAvatar} />
-                                    </label>
                                 </div>
                                 <div className="grid grid-cols-5 gap-3 max-h-[220px] overflow-y-auto pr-2 no-scrollbar">
                                     {PREDEFINED_AVATARS.map((url, idx) => (
@@ -311,9 +299,20 @@ export const GamificationProfile: React.FC<GamificationProfileProps> = ({
                 {activeTab === 'posts' && (
                     <div className="grid grid-cols-1 gap-4">
                         {createdPosts.length > 0 ? createdPosts.map(post => (
-                            <div key={post.id} onClick={() => onNavigateToPost(post.id)} className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm hover:border-mira-blue transition-all cursor-pointer group">
-                                <span className="text-[8px] font-black bg-slate-50 text-slate-500 px-3 py-1 rounded-full uppercase tracking-widest mb-3 inline-block">{post.category}</span>
-                                <h4 className="font-bold text-slate-900 text-sm group-hover:text-mira-blue leading-tight uppercase tracking-tight">{post.title}</h4>
+                            <div key={post.id} className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm hover:border-mira-blue transition-all group flex items-start justify-between">
+                                <div onClick={() => onNavigateToPost(post.id)} className="flex-1 cursor-pointer">
+                                    <span className="text-[8px] font-black bg-slate-50 text-slate-500 px-3 py-1 rounded-full uppercase tracking-widest mb-3 inline-block">{post.category}</span>
+                                    <h4 className="font-bold text-slate-900 text-sm group-hover:text-mira-blue leading-tight uppercase tracking-tight">{post.title}</h4>
+                                </div>
+                                {onDeletePost && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onDeletePost(post.id); }}
+                                        className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors"
+                                        title="Eliminar Publicação"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                )}
                             </div>
                         )) : (
                             <div className="text-center py-20 text-slate-300 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-100">

@@ -249,7 +249,7 @@ const App: React.FC = () => {
       case ViewType.MAP: return <LocalServicesMap language={language} />;
       case ViewType.LEARNING: return <LearningHub courses={courses} onNavigateToChat={() => setCurrentView(ViewType.ASSISTANT)} onEarnPoints={() => { }} onNavigateToContact={() => { }} language={language} />;
       case ViewType.DOCUMENTS: return <DocumentAssistant tasks={tasks} chatSessions={chatSessions} drafts={docDrafts} setDrafts={setDocDrafts} history={docHistory} addToHistory={(doc) => setDocHistory([doc, ...docHistory])} onOpenSession={() => { }} language={language} onEarnPoints={() => { }} onToggleTask={() => { }} onViewChange={setCurrentView} />;
-      case ViewType.PROFILE: return <GamificationProfile user={user} onUpdateUser={setUser} helps={14} impact={342 + points} badges={['Resiliente']} activitiesCount={142} savedCount={savedPostsIds.size} followingCount={56} language={lowerLang} onNavigateToPost={() => setCurrentView(ViewType.COMMUNITY)} onViewChange={setCurrentView} savedPosts={masterPosts.filter(p => savedPostsIds.has(p.id))} onLogout={handleLogoutAction} />;
+      case ViewType.PROFILE: return <GamificationProfile user={user} onUpdateUser={setUser} helps={14} impact={342 + points} badges={['Resiliente']} activitiesCount={142} savedCount={savedPostsIds.size} followingCount={56} language={lowerLang} onNavigateToPost={() => setCurrentView(ViewType.COMMUNITY)} onViewChange={setCurrentView} createdPosts={masterPosts.filter(p => p.authorId === user.id)} onDeletePost={async (id) => { if (!window.confirm("Certeza que queres eliminar este post?")) return; setMasterPosts(prev => prev.filter(p => p.id !== id)); try { const { communityService } = await import('./services/communityService'); await communityService.deletePost(id, user.id); } catch (e) { } }} savedPosts={masterPosts.filter(p => savedPostsIds.has(p.id))} onLogout={handleLogoutAction} />;
       case ViewType.DASHBOARD: return <DashboardView masterPosts={masterPosts} onUpdatePosts={setMasterPosts} totalOfficialDocs={6} onAddCourse={handleAddCourse} onAddMultipleCourses={handleAddMultipleCourses} onLogout={handleLogoutAction} onDeleteAllUsers={() => {
         // In a real app, this would call an API. Here we simulate by clearing local storage and resetting state
         localStorage.removeItem('mira_user');
@@ -304,20 +304,19 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Floating Chat Mira Button - Fixado para sempre aparecer na direita em baixo */}
-      {!isAdmin && currentView !== ViewType.ASSISTANT && (
-        <button
-          onClick={() => setCurrentView(ViewType.ASSISTANT)}
-          className="fixed bottom-24 right-6 md:right-8 lg:right-10 z-[9999] w-16 h-16 bg-gradient-to-br from-mira-orange via-orange-500 to-red-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_40px_rgba(249,115,22,0.6)] active:scale-90 transition-all hover:scale-110 group animate-pulse"
-        >
-          <Bot size={32} className="text-white group-hover:rotate-12 transition-transform drop-shadow-md" />
-          <div className="absolute top-0 right-0 w-4 h-4 bg-mira-green rounded-full border-2 border-white shadow-sm"></div>
-          <div className="absolute -top-3 right-full mr-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-2xl">
-            Dúvidas? Pergunte ao MIRA
-            <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-900 rotate-45 transform origin-center"></div>
-          </div>
-        </button>
-      )}
+      {/* Floating Chat Mira Button - always visible on the right side corner */}
+      <button
+        onClick={() => setCurrentView(ViewType.ASSISTANT)}
+        className="fixed bottom-24 right-6 md:right-8 lg:right-10 z-[9999] w-16 h-16 bg-gradient-to-br from-mira-orange via-orange-500 to-red-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_40px_rgba(249,115,22,0.6)] active:scale-90 transition-all hover:scale-110 group animate-pulse"
+      >
+        <Bot size={32} className="text-white group-hover:rotate-12 transition-transform drop-shadow-md" />
+        <div className="absolute top-0 right-0 w-4 h-4 bg-mira-green rounded-full border-2 border-white shadow-sm"></div>
+        <div className="absolute -top-3 right-full mr-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-2xl">
+          Dúvidas? Pergunte ao MIRA
+          <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-slate-900 rotate-45 transform origin-center"></div>
+        </div>
+      </button>
+
 
       <div className={`fixed bottom-0 left-0 right-0 z-[200] md:relative md:bottom-auto transition-transform duration-300`}>
         <Navigation currentView={currentView} onViewChange={setCurrentView} language={language} />
