@@ -152,14 +152,14 @@ interface CommunityViewProps {
 }
 
 const THEMED_IMAGES = [
-  'https://images.unsplash.com/photo-1558588942-930faae5a389?w=800&q=80', // Lisbon Tram (Portugal)
-  'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80', // Hands together (Community)
-  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80', // Group studying (Education)
-  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80', // Professional (Work)
-  'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80', // Team/People (Networking)
-  'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80', // Laptop (Tech/Jobs)
-  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80', // Happy diverse people
-  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80'  // Office documents (Bureaucracy)
+  'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80', // Friends integration
+  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80', // Diverse community
+  'https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?w=800&q=80', // Support/union
+  'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=800&q=80', // Happy diverse group
+  'https://images.unsplash.com/photo-1476900543704-4312b78632f8?w=800&q=80', // Journey/Adventure
+  'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&q=80', // Handshake/Support
+  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80', // Integration/Education
+  'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80'  // Networking/Team
 ];
 
 
@@ -777,8 +777,8 @@ const CommunityView: React.FC<CommunityViewProps> = ({
                     className="w-full h-40 sm:h-48 p-6 bg-slate-50/50 border-2 border-slate-100 rounded-[2rem] text-base sm:text-lg font-bold focus:bg-white focus:border-mira-blue transition-all outline-none resize-none leading-relaxed text-slate-800 placeholder:text-slate-300"
                     placeholder="Em que estás a pensar? Como podes ajudar a comunidade hoje?"
                   />
-                  <div className={`absolute bottom-6 right-6 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${newPostContent.length > 280 ? 'bg-red-50 text-red-500' : 'bg-slate-100 text-slate-400'}`}>
-                    {newPostContent.length} / 300
+                  <div className={`absolute bottom-6 right-6 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${newPostContent.length > 480 ? 'bg-red-50 text-red-500' : 'bg-slate-100 text-slate-400'}`}>
+                    {newPostContent.length} / 500
                   </div>
                 </div>
               </div>
@@ -803,17 +803,17 @@ const CommunityView: React.FC<CommunityViewProps> = ({
                   </div>
                 </div>
 
-                {/* Image Selection Horizontal */}
+                {/* Image Selection Grid */}
                 <div className="space-y-3">
                   <div className="flex justify-between items-center ml-1">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fundo da Publicação</label>
                   </div>
-                  <div className="flex gap-3 overflow-x-auto pb-4 pt-1 px-1 no-scrollbar snap-x">
+                  <div className="grid grid-cols-4 gap-2">
                     {THEMED_IMAGES.map((img, idx) => (
                       <button
                         key={idx}
                         onClick={() => setSelectedImage(img)}
-                        className={`min-w-[4.5rem] w-[4.5rem] h-[4.5rem] sm:min-w-[5rem] sm:w-[5rem] sm:h-[5rem] shrink-0 rounded-2xl overflow-hidden border-[3px] transition-all relative snap-center ${selectedImage === img ? 'border-mira-blue scale-105 shadow-xl shadow-mira-blue/20 opacity-100 z-10' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                        className={`w-full aspect-square rounded-2xl overflow-hidden border-[3px] transition-all relative ${selectedImage === img ? 'border-mira-blue scale-100 shadow-xl shadow-mira-blue/20 opacity-100 z-10' : 'border-transparent opacity-60 hover:opacity-100'}`}
                       >
                         <img src={img} className="w-full h-full object-cover" alt={`Fundo ${idx + 1}`} referrerPolicy="no-referrer" />
                         {selectedImage === img && (
