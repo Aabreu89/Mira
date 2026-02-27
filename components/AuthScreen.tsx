@@ -50,29 +50,28 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
         }
 
         if (isVerifyingEmail) {
-            const { data, error } = await supabase.auth.verifyOtp({
-                email: email.trim(),
-                token: otp,
-                type: 'email'
-            });
+            setIsLoading(false);
+            return;
+        }
 
+        if (isLogin) {
+            const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password: password.trim() });
             if (error) {
-                setErrorMsg('Código incorreto ou expirado. Tente novamente.');
-                setIsLoading(false);
-                return;
-            }
-
-            if (data.session) {
+                setErrorMsg(error.message);
+            } else if (data.session) {
                 try {
                     const fetchProfile = supabase.from('profiles').select('*').eq('id', data.session.user.id).single();
                     const timeout = new Promise<{ data: any, error: any }>((resolve) => setTimeout(() => resolve({ data: null, error: new Error('Timeout') }), 2000));
+
                     const { data: profile, error: profileErr } = await Promise.race([fetchProfile, timeout]);
+
+                    console.log('Profile query result:', profile, profileErr);
 
                     if (profile && !profileErr) {
                         onLogin({
                             id: profile.id,
                             email: data.session.user.email || '',
-                            name: profile.name || data.session.user.user_metadata?.name || 'Voz da Comunidade',
+                            name: profile.name || data.session.user.user_metadata?.name || 'Usuário Novo',
                             avatar: profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}`,
                             bio: profile.bio || '',
                             nationality: profile.nationality || 'Não especificada',
@@ -89,8 +88,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                     } else {
                         const emailStr = data.session.user.email || '';
                         const isAdmin = emailStr.includes('amandasabreu');
-                        const defaultName = isAdmin ? 'Amanda Admin' : 'Voz da Comunidade';
+                        const defaultName = isAdmin ? 'Amanda Admin' : (data.session.user.user_metadata?.name || 'Usuário Comunidade');
 
+                        // Try to create profile if completely missing
                         supabase.from('profiles').insert([{
                             id: data.session.user.id,
                             name: defaultName,
@@ -102,8 +102,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                             email: emailStr,
                             name: defaultName,
                             role: isAdmin ? 'admin' : 'member',
-                            reputation: 50,
-                            trustLevel: 'Explorador',
+                            reputation: 500,
+                            trustLevel: 'Curador Comunitário',
                             isVerified: true,
                             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(isAdmin ? 'Admin' : 'User')}`,
                             bio: '', nationality: '', ageRange: '', location: '', mainChallenge: '', isMuted: false, registrationDate: new Date().toISOString()
@@ -114,32 +114,21 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                     setErrorMsg('Erro interno no servidor ou no perfil.');
                 }
             }
-            setIsLoading(false);
-            return;
-        }
-
-        // Se não estamos logados nem a verificar email, então vamos iniciar Sessão por OTP (Sem password) ou Sign In Normal
-        if (!email) {
-            setErrorMsg('O email é obrigatório.');
-            setIsLoading(false);
-            return;
-        }
-
-        // SUPABASE NATIVE OTP TRIGGER
-        const { error } = await supabase.auth.signInWithOtp({
-            email: email.trim(),
-            options: {
-                shouldCreateUser: true,
-                data: {
-                    name: `Utilizador MIRA ${Math.floor(Math.random() * 1000)}`
-                }
-            }
-        });
-
-        if (error) {
-            setErrorMsg(error.message);
         } else {
-            setIsVerifyingEmail(true);
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { name: `Usuário ${Math.floor(Math.random() * 1000)}` }
+                }
+            });
+            if (error) {
+                setErrorMsg(error.message);
+            } else {
+                const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+                if (signInError) setErrorMsg('Sua conta foi criada! Faça login agora para entrar na plataforma.');
+                else if (data.session) onLogin({ id: data.session.user.id, email: data.session.user.email, name: 'Usuário Novo', role: 'member', reputation: 0, trustLevel: 'Observador' });
+            }
         }
 
         setIsLoading(false);
@@ -231,12 +220,31 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                         <div className="relative">
                             <Globe className="absolute left-4 top-3.5 text-slate-400" size={18} />
                             <input
-                                type="email"
+                                type="text"
                                 placeholder={t('auth_email_placeholder', language)}
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl text-sm font-bold focus:border-mira-blue focus:bg-white transition-all outline-none"
                             />
+                        </div>
+                    </div>
+                    <div className="space-y-1.5">
+                        <div className="relative">
+                            <Lock className="absolute left-4 top-3.5 text-slate-400" size={18} />
+                            <input
+                                type={showPass ? "text" : "password"}
+                                placeholder={t('auth_pass_placeholder', language)}
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl text-sm font-bold focus:border-mira-blue focus:bg-white transition-all outline-none"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPass(!showPass)}
+                                className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600"
+                            >
+                                {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
                         </div>
                     </div>
 
@@ -246,14 +254,21 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                         </div>
                     )}
 
-                    <button type="submit" disabled={isLoading || !email} className="w-full py-5 bg-mira-orange text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-orange-200 hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50">
-                        {isLoading ? 'A PROCESSAR...' : 'Receber Código Seguro'}
-                    </button>
+                    {isLogin && (
+                        <div className="flex justify-end items-center px-1">
+                            <button
+                                type="button"
+                                onClick={() => setIsForgotPassword(true)}
+                                className="text-[10px] font-black text-mira-blue hover:text-blue-700 transition-colors uppercase tracking-widest"
+                            >
+                                {t('auth_forgot_pass', language)}
+                            </button>
+                        </div>
+                    )}
 
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                        <ShieldCheck size={14} className="text-mira-green" />
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Login via Código (Sem Senhas)</span>
-                    </div>
+                    <button type="submit" disabled={isLoading} className="w-full py-5 bg-mira-orange text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-orange-200 hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50">
+                        {isLoading ? 'A PROCESSAR...' : (isLogin ? 'Iniciar Jornada' : 'Registar')}
+                    </button>
                 </div>
             </div>
         );
@@ -328,6 +343,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                         {renderForm()}
                     </form>
                 </div>
+
+                {/* Link de Registro Separado */}
+                {!isForgotPassword && !isVerifyingEmail && (
+                    <div className="text-center mt-10 mb-16 animate-in fade-in duration-1000">
+                        <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-[10px] font-black text-white/80 hover:text-white transition-colors uppercase tracking-[0.2em] drop-shadow-sm">
+                            {isLogin ? 'Ainda não tens conta?' : 'Já fazes parte da rede?'} <span className="text-white underline decoration-white/40 underline-offset-8 decoration-2">{isLogin ? 'Regista-te aqui' : 'Entra aqui'}</span>
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* High-Tech Blinking Lights & Attribution Footer */}
