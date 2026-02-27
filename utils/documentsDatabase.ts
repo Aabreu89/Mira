@@ -13,8 +13,57 @@ export const standardFields = [
 export const templates: DocumentTemplate[] = [
     // --- LEGALIZAÇÃO (AIMA, IRN, CNAIM) ---
     {
-        id: 'aima_prorrogacao', title: 'Pedido de Prorrogação de Permanência', category: CATEGORIES.IMMIGRATION, complexity: 'Medium', authority: 'AIMA', location: 'Balcão AIMA',
-        description: 'Requerimento oficial para estender a validade de um visto de curta duração ou estada temporária.',
+        id: 'aima_modelo_1', title: 'Modelo 1 - Pedido e Renovação de Autorização de Residência (ARI/Reagrupamento)', category: CATEGORIES.IMMIGRATION, complexity: 'Hard', authority: 'AIMA', location: 'Balcão AIMA',
+        description: 'Impresso oficial para Pedido e Renovação de Autorização de Residência Temporária/Permanente, Cartão Azul UE e Reagrupamento Familiar.',
+        tips: 'Obtido de aima.gov.pt/pt/impressos-e-minutas',
+        requirements: ['Passaporte', 'Comprovativo Morada', 'Meios de Subsistência'],
+        fields: [...standardFields, { id: 'process_type', label: 'Tipo de Pedido', placeholder: 'Ex: Concessão, Renovação, Reagrupamento', type: 'text' }]
+    },
+    {
+        id: 'aima_modelo_4', title: 'Modelo 4 - Termo de Responsabilidade', category: CATEGORIES.IMMIGRATION, complexity: 'Medium', authority: 'AIMA', location: 'Notário / AIMA',
+        description: 'Termo de Responsabilidade para cidadãos estrangeiros entrarem ou permanecerem em Portugal. Exige assinatura reconhecida se não for assinado presencialmente na AIMA.',
+        tips: 'Obtido de aima.gov.pt/pt/impressos-e-minutas',
+        requirements: ['ID do Responsável', 'Comprovativo de Rendimentos do Responsável'],
+        fields: [...standardFields, { id: 'responsable_name', label: 'Nome do Cidadão Responsável', placeholder: 'Pessoa que se responsabiliza', type: 'text' }]
+    },
+    {
+        id: 'aima_modelo_mi', title: 'Modelo Manifestação de Interesse (Art 88/89)', category: CATEGORIES.IMMIGRATION, complexity: 'Hard', authority: 'AIMA', location: 'Portal/Balcão AIMA',
+        description: 'Apresentação de manifestação de interesse para concessão de AR para exercício de atividade profissional subordinada ou independente.',
+        tips: 'Documento histórico/recorrente listado em aima.gov.pt/pt/impressos-e-minutas.',
+        requirements: ['Contrato ou Promessa de Trabalho', 'Inscrição Seg. Social'],
+        fields: [...standardFields, { id: 'work_type', label: 'Tipo de Atividade', placeholder: 'Subordinada ou Independente', type: 'text' }]
+    },
+    {
+        id: 'aima_dec_alojamento', title: 'Minuta - Declaração de Alojamento', category: CATEGORIES.HOUSING, complexity: 'Easy', authority: 'AIMA', location: 'Portal/Balcão AIMA',
+        description: 'Minuta oficial da AIMA para atestar que o cidadão dispõe de alojamento em Portugal.',
+        tips: 'Obtido de aima.gov.pt/pt/impressos-e-minutas',
+        requirements: ['Cópia CC do Senhorio/Alojador'],
+        fields: [...standardFields, { id: 'host_name', label: 'Nome de quem aloja', placeholder: 'Proprietário ou Arrendatário principal', type: 'text' }]
+    },
+    {
+        id: 'aima_dec_patronal', title: 'Minuta - Declaração de Entidade Patronal', category: CATEGORIES.WORK, complexity: 'Easy', authority: 'AIMA', location: 'Portal/Balcão AIMA',
+        description: 'Declaração padrão da AIMA a ser preenchida pela empresa para comprovar o vínculo laboral do cidadão estrangeiro.',
+        tips: 'Obrigatório carimbo da empresa ou assinatura reconhecida.',
+        requirements: ['Contrato de Trabalho', 'Registo Comercial da Empresa'],
+        fields: [...standardFields, { id: 'company_name', label: 'Nome da Empresa', placeholder: '', type: 'text' }]
+    },
+    {
+        id: 'aima_dec_rendimentos', title: 'Minuta - Declaração de Posse de Rendimentos', category: CATEGORIES.FINANCE, complexity: 'Easy', authority: 'AIMA', location: 'Portal/Balcão AIMA',
+        description: 'Declaração sob compromisso de honra sobre a posse de meios de subsistência suficientes.',
+        tips: 'Obtido de aima.gov.pt/pt/impressos-e-minutas',
+        requirements: ['Extratos Bancários', 'Recibos de Vencimento'],
+        fields: [...standardFields, { id: 'income_amount', label: 'Valor Mensal dos Rendimentos (€)', placeholder: 'Ex: 820,00', type: 'number' }]
+    },
+    {
+        id: 'aima_igualdade', title: 'Modelo Estatuto de Igualdade de Direitos e Deveres', category: CATEGORIES.RIGHTS, complexity: 'Medium', authority: 'AIMA', location: 'Balcão AIMA / IRN',
+        description: 'Impresso para requerimento do Estatuto de Igualdade para cidadãos Brasileiros.',
+        tips: 'Permite aceder a direitos equivalentes. Obtido de aima.gov.pt/pt/impressos-e-minutas',
+        requirements: ['Cartão de Residência Válido', 'Certificado de Nacionalidade'],
+        fields: [...standardFields]
+    },
+    {
+        id: 'aima_prorrogacao', title: 'Pedido de Prorrogação de Permanência (Modelo 2 / Modelo 3)', category: CATEGORIES.IMMIGRATION, complexity: 'Medium', authority: 'AIMA', location: 'Balcão AIMA',
+        description: 'Requerimento oficial (Modelo 2 ou 3) para estender a validade de um visto de curta duração ou estada temporária.',
         tips: 'Ver mais info em aima.gov.pt/pt/impressos-e-minutas',
         requirements: ['Seguro Saúde', 'Prova Meios'],
         fields: [...standardFields, { id: 'reason_extension', label: 'Motivo da Prorrogação', placeholder: 'Ex: Tratamento médico, turismo prolongado', type: 'text' }]
