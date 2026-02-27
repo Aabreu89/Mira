@@ -93,6 +93,32 @@ export const GamificationProfile: React.FC<GamificationProfileProps> = ({
     const [editAvatar, setEditAvatar] = useState(user?.avatar || '');
 
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            if (!event.target.files || event.target.files.length === 0 || !user) return;
+            const file = event.target.files[0];
+            setIsUploadingAvatar(true);
+
+            const fileExt = file.name.split('.').pop() || 'png';
+            const fileName = `${user.id}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
+            if (data?.publicUrl) {
+                setEditAvatar(data.publicUrl);
+            }
+        } catch (error) {
+            console.error('Erro ao subir imagem:', error);
+            alert('Não foi possível fazer upload. Verifique se o bucket "avatars" existe e é público no Supabase.');
+        } finally {
+            setIsUploadingAvatar(false);
+        }
+    };
 
     const handleSaveProfile = async () => {
         if (!user) return;
@@ -199,9 +225,15 @@ export const GamificationProfile: React.FC<GamificationProfileProps> = ({
                     {isEditing && (
                         <div className="animate-in slide-in-from-top-4 duration-300 space-y-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                                    <Star size={12} className="text-mira-yellow fill-mira-yellow" /> Escolher Foto de Perfil
-                                </p>
+                                <div className="flex justify-between items-center mb-4">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                        <Star size={12} className="text-mira-yellow fill-mira-yellow" /> Foto de Perfil
+                                    </p>
+                                    <label className={`text-[9px] bg-slate-100 text-slate-600 px-4 py-2 rounded-xl font-black uppercase tracking-widest cursor-pointer hover:bg-slate-200 transition-colors flex items-center gap-2 ${isUploadingAvatar ? 'opacity-50 pointer-events-none' : ''}`}>
+                                        <FileText size={12} /> {isUploadingAvatar ? 'A CARREGAR...' : 'FAZER UPLOAD'}
+                                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={isUploadingAvatar} />
+                                    </label>
+                                </div>
                                 <div className="grid grid-cols-5 gap-3 max-h-[220px] overflow-y-auto pr-2 no-scrollbar">
                                     {PREDEFINED_AVATARS.map((url, idx) => (
                                         <button
