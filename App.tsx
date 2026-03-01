@@ -16,8 +16,10 @@ import { AuthScreen } from './components/AuthScreen';
 import { ViewType, DocumentTask, ChatSession, GeneratedDocument, User, NotificationPreferences, Course, CATEGORIES, Post } from './types';
 import { analytics } from './services/analyticsService';
 import { communityService } from './services/communityService';
+import { AdminHub } from './components/AdminHub';
+import { adminService } from './services/adminService';
 import { MIRA_LOGO } from './constants';
-import { Bell, X, Info, Bot, Globe, ChevronDown, LayoutDashboard, LogOut, Sparkles, MessageCircle, ArrowLeft } from 'lucide-react';
+import { Bell, X, Info, Bot, Globe, ChevronDown, LayoutDashboard, LogOut, Sparkles, MessageCircle, ArrowLeft, Users } from 'lucide-react';
 import { t } from './utils/translations';
 
 const INITIAL_NOTIFS: NotificationPreferences = {
@@ -122,15 +124,23 @@ const App: React.FC = () => {
             isMuted: profile.is_muted || false,
             registrationDate: profile.updated_at || new Date().toISOString()
           };
+
+          // Sync email if missing
+          if (!profile.email && session.user.email) {
+            supabase.from('profiles')
+              .update({ email: session.user.email })
+              .eq('id', profile.id)
+              .then(() => console.log('Email sincronizado no App'));
+          }
         } else {
           const emailStr = session.user.email || '';
           const isAdmin = emailStr.includes('amandasabreu');
           const defaultName = isAdmin ? 'Amanda Admin' : (session.user.user_metadata?.name || 'Usuário Comunidade');
 
-          // If no profile exists, try to insert one
           supabase.from('profiles').insert([{
             id: session.user.id,
             name: defaultName,
+            email: emailStr,
             role: isAdmin ? 'admin' : 'member'
           }]).then(() => console.log('Criou profile fallback a partir do App'));
 
@@ -148,7 +158,7 @@ const App: React.FC = () => {
         }
 
         setUser(u);
-        if (u.role === 'admin') setCurrentView(ViewType.DASHBOARD);
+        if (u.role === 'admin') setCurrentView(ViewType.ADMIN_HUB);
         else {
           const consentGiven = localStorage.getItem('mira_consent_given');
           if (consentGiven !== 'true') setShowConsent(true);
@@ -171,7 +181,7 @@ const App: React.FC = () => {
   const handleLogin = (newUser: User) => {
     // Opcional: Ainda usado se AuthScreen quiser forçar o set de usuário antes do onAuthStateChange
     setUser(newUser);
-    if (newUser.role === 'admin') setCurrentView(ViewType.DASHBOARD);
+    if (newUser.role === 'admin') setCurrentView(ViewType.ADMIN_HUB);
     else {
       const consentGiven = localStorage.getItem('mira_consent_given');
       if (consentGiven !== 'true') setShowConsent(true);
@@ -227,6 +237,7 @@ const App: React.FC = () => {
         localStorage.removeItem('mira_consent_given');
         alert("Base de dados de utilizadores limpa com sucesso (Simulação).");
       }} />;
+      case ViewType.ADMIN_HUB: return <AdminHub onBack={() => setCurrentView(ViewType.DASHBOARD)} />;
       case ViewType.PRIVACY: return <PrivacyPage />;
       default: return <HomeView user={user} onViewChange={setCurrentView} language={language} />;
     }
@@ -241,7 +252,7 @@ const App: React.FC = () => {
       {showConsent && <ConsentModal onAccept={handleAcceptConsent} onDecline={() => setShowConsent(false)} />}
 
       <header className={`${isAdmin ? 'bg-slate-900 border-white/5 shadow-2xl' : 'bg-white/95 border-b shadow-sm'} backdrop-blur-md sticky top-0 z-[150] px-6 py-4 flex items-center justify-between transition-all duration-300`}>
-        <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setCurrentView(isAdmin ? ViewType.DASHBOARD : ViewType.HOME)}>
+        <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setCurrentView(isAdmin ? ViewType.ADMIN_HUB : ViewType.HOME)}>
           <div className="w-10 h-10 shadow-glow transition-transform group-hover:scale-110">{MIRA_LOGO}</div>
           <span className={`${isAdmin ? 'text-white' : 'text-slate-900'} font-black tracking-tighter text-2xl`}>MIRA</span>
         </div>
@@ -256,8 +267,8 @@ const App: React.FC = () => {
               <ArrowLeft size={18} />
             </button>
           )}
-          {isAdmin && currentView !== ViewType.DASHBOARD && (
-            <button onClick={() => setCurrentView(ViewType.DASHBOARD)} className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all"><LayoutDashboard size={16} /> AdminHub</button>
+          {isAdmin && currentView !== ViewType.ADMIN_HUB && (
+            <button onClick={() => setCurrentView(ViewType.ADMIN_HUB)} className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all"><Users size={16} /> Admin Hub</button>
           )}
           <div className="relative ml-2">
             <button onClick={() => setShowLangMenu(!showLangMenu)} className={`p-2.5 rounded-2xl flex items-center gap-2 transition-all ${isAdmin ? 'bg-slate-800 text-white' : 'bg-slate-50 text-slate-400'}`}>

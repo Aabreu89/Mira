@@ -604,7 +604,7 @@ const CommunityView: React.FC<CommunityViewProps> = ({
                           <div className="h-px bg-slate-50 mx-4 mb-1" />
                           {isAuthor ? (
                             <button onClick={() => { setOpenPostMenu(null); handleDeletePost(post.id); }} className="w-full flex items-center gap-3 px-5 py-4 text-red-500 font-black text-xs uppercase tracking-wider hover:bg-red-50 transition-all text-left">
-                              <Trash2 size={16} /> Eliminar o meu post
+                              <Trash2 size={16} /> Excluir post
                             </button>
                           ) : (
                             <button onClick={() => { setOpenPostMenu(null); setReportingItem({ postId: post.id }); }} className="w-full flex items-center gap-3 px-5 py-4 text-slate-700 font-black text-xs uppercase tracking-wider hover:bg-slate-50 transition-all text-left">
@@ -673,29 +673,7 @@ const CommunityView: React.FC<CommunityViewProps> = ({
                         <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
                       </button>
 
-                      {isAuthor ? (
-                        <button
-                          onClick={() => handleDeletePost(post.id)}
-                          className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all relative -top-2"
-                          title="Eliminar Publicação"
-                        >
-                          <div className="p-4 rounded-2xl transition-all bg-red-50 text-red-500 hover:bg-red-500 hover:text-white">
-                            <Trash2 size={22} />
-                          </div>
-                          <span className="text-[9px] font-black text-red-400 tracking-tighter">Apagar</span>
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => setReportingItem({ postId: post.id })}
-                          className="flex flex-col items-center gap-1.5 group active:scale-90 transition-all relative -top-2"
-                          title="Alerta de Segurança"
-                        >
-                          <div className={`p-4 rounded-2xl transition-all ${post.reports > 0 ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-50 text-slate-300 hover:bg-red-50 hover:text-red-500'}`}>
-                            <ShieldAlert size={22} />
-                          </div>
-                          <span className="text-[9px] font-black text-slate-800 tracking-tighter opacity-0">.</span>
-                        </button>
-                      )}
+
                     </div>
                   </div>
 

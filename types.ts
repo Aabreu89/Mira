@@ -10,7 +10,8 @@ export enum ViewType {
   CURATOR = 'curator',
   JOBS = 'jobs',
   MAP = 'map',
-  PRIVACY = 'privacy'
+  PRIVACY = 'privacy',
+  ADMIN_HUB = 'admin_hub'
 }
 
 export type TrustLevel = "Observador" | "Colaborador" | "Curador Comunitário";
@@ -37,14 +38,16 @@ export interface NotificationPreferences {
 }
 
 export const UNIFIED_CATEGORIES = [
-  "Documentos & Regularização",
-  "Emprego & Oportunidades",
-  "Finanças & Apoios",
-  "Habitação & Vida Local",
-  "Saúde & Bem-Estar",
-  "Educação & Formação",
-  "Comunidade & Solidariedade",
-  "Direitos & Segurança",
+  "Residência e Legalização",
+  "Registos e Nacionalidade",
+  "Emprego e Formação",
+  "Segurança Social",
+  "Saúde (SNS)",
+  "Finanças",
+  "Educação e Reconhecimento",
+  "Direitos e Apoios Sociais",
+  "Habitação",
+  "Comunidade & Apoio",
   "Tecnologia & Ética Digital",
   "Histórias & Vozes Migrantes"
 ] as const;
@@ -53,16 +56,31 @@ export type UnifiedCategory = typeof UNIFIED_CATEGORIES[number];
 
 export const CATEGORIES = {
   IMMIGRATION: UNIFIED_CATEGORIES[0],
-  WORK: UNIFIED_CATEGORIES[1],
-  FINANCE: UNIFIED_CATEGORIES[2],
-  HOUSING: UNIFIED_CATEGORIES[3],
+  RIGHTS: UNIFIED_CATEGORIES[1],
+  WORK: UNIFIED_CATEGORIES[2],
+  SOCIAL_SECURITY: UNIFIED_CATEGORIES[3],
   HEALTH: UNIFIED_CATEGORIES[4],
-  EDUCATION: UNIFIED_CATEGORIES[5],
-  COMMUNITY: UNIFIED_CATEGORIES[6],
-  RIGHTS: UNIFIED_CATEGORIES[7],
-  TECH: UNIFIED_CATEGORIES[8],
-  STORIES: UNIFIED_CATEGORIES[9],
+  FINANCE: UNIFIED_CATEGORIES[5],
+  EDUCATION: UNIFIED_CATEGORIES[6],
+  SOCIAL_SUPPORT: UNIFIED_CATEGORIES[7],
+  HOUSING: UNIFIED_CATEGORIES[8],
+  COMMUNITY: UNIFIED_CATEGORIES[9],
+  TECH: UNIFIED_CATEGORIES[10],
+  STORIES: UNIFIED_CATEGORIES[11],
 };
+
+export const MAP_CATEGORIES = [
+  UNIFIED_CATEGORIES[0], // Residência e Legalização
+  UNIFIED_CATEGORIES[1], // Registos e Nacionalidade
+  UNIFIED_CATEGORIES[2], // Emprego e Formação
+  UNIFIED_CATEGORIES[3], // Segurança Social
+  UNIFIED_CATEGORIES[4], // Saúde (SNS)
+  UNIFIED_CATEGORIES[5], // Finanças
+  UNIFIED_CATEGORIES[6], // Educação e Reconhecimento
+  UNIFIED_CATEGORIES[7], // Direitos e Apoios Sociais
+  UNIFIED_CATEGORIES[8], // Habitação
+  UNIFIED_CATEGORIES[9], // Comunidade & Apoio
+] as const;
 
 export const WORK_TOPICS = [
   "Tecnologia, Dados & IA",
@@ -98,6 +116,7 @@ export interface User {
   trustLevel: TrustLevel;
   isVerified?: boolean;
   role?: 'member' | 'mentor' | 'admin';
+  isBlocked?: boolean;
   badges?: Badge[];
 }
 

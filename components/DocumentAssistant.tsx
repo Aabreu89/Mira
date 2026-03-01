@@ -13,6 +13,8 @@ import { analytics } from '../services/analyticsService';
 import { t } from '../utils/translations';
 import { supabase } from '../lib/supabase';
 import { templates, serviceGuides } from '../utils/documentsDatabase';
+import { RegularizationWizard } from './RegularizationWizard';
+
 interface DocumentAssistantProps {
     tasks: DocumentTask[];
     chatSessions: ChatSession[];
@@ -50,7 +52,7 @@ export const DocumentAssistant: React.FC<DocumentAssistantProps> = ({
     }, []);
 
     const filteredItems = useMemo(() => {
-        const list = activeTab === 'guides' ? serviceGuides : templates;
+        const list = templates; // Only templates now in the gallery search
         const term = searchFilter.toLowerCase();
         return list.filter((item: any) => {
             const matchesSearch = item.title.toLowerCase().includes(term);
@@ -58,7 +60,7 @@ export const DocumentAssistant: React.FC<DocumentAssistantProps> = ({
             const matchesEntity = entityFilter === 'Todos' || item.authority === entityFilter;
             return matchesSearch && matchesCategory && matchesEntity;
         });
-    }, [activeTab, searchFilter, categoryFilter, entityFilter]);
+    }, [searchFilter, categoryFilter, entityFilter]);
 
     const generatePDF = async () => {
         if (!selectedTemplate) return;
@@ -141,90 +143,110 @@ export const DocumentAssistant: React.FC<DocumentAssistantProps> = ({
                     <div className="bg-white p-6 space-y-6 border-b border-slate-100">
                         <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none">{t('docs_title', language)}</h2>
                         <div className="flex bg-slate-100 p-1.5 rounded-2xl">
-                            {[{ id: 'docs', label: t('docs_tab_docs', language) }, { id: 'guides', label: t('docs_tab_guides', language) }].map(tab => (
+                            {[{ id: 'docs', label: t('docs_tab_docs', language) }, { id: 'guides', label: "Regularização" }].map(tab => (
                                 <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`flex-1 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}>{tab.label}</button>
                             ))}
                         </div>
-                        <div className="space-y-3">
-                            <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input type="text" placeholder={t('docs_search_placeholder', language)} value={searchFilter} onChange={e => setSearchFilter(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-mira-orange-pastel transition-all" />
-                            </div>
 
-                            <div className="flex gap-2">
-                                <div className="relative flex-1">
-                                    <select
-                                        value={entityFilter}
-                                        onChange={e => setEntityFilter(e.target.value)}
-                                        className="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-2 focus:ring-mira-orange-pastel"
-                                    >
-                                        <option value="Todos">Todas as Entidades</option>
-                                        {entities.map(e => <option key={e} value={e}>{e}</option>)}
-                                    </select>
-                                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                        {activeTab === 'docs' && (
+                            <div className="space-y-3">
+                                <div className="relative">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <input type="text" placeholder={t('docs_search_placeholder', language)} value={searchFilter} onChange={e => setSearchFilter(e.target.value)} className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-mira-orange-pastel transition-all" />
                                 </div>
-                                <div className="relative flex-1">
-                                    <select
-                                        value={categoryFilter}
-                                        onChange={e => setCategoryFilter(e.target.value)}
-                                        className="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-2 focus:ring-mira-orange-pastel"
-                                    >
-                                        <option value="Todos">Categorias</option>
-                                        {UNIFIED_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                                    </select>
-                                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <select
+                                            value={entityFilter}
+                                            onChange={e => setEntityFilter(e.target.value)}
+                                            className="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-2 focus:ring-mira-orange-pastel"
+                                        >
+                                            <option value="Todos">Todas as Entidades</option>
+                                            {entities.map(e => <option key={e} value={e}>{e}</option>)}
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    </div>
+                                    <div className="relative flex-1">
+                                        <select
+                                            value={categoryFilter}
+                                            onChange={e => setCategoryFilter(e.target.value)}
+                                            className="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-2 focus:ring-mira-orange-pastel"
+                                        >
+                                            <option value="Todos">Categorias</option>
+                                            {UNIFIED_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
-                    <div className="flex-1 overflow-y-auto p-6 space-y-5 no-scrollbar pb-32">
-                        {filteredItems.length > 0 ? filteredItems.map((item: any) => (
-                            <div key={item.id} onClick={() => { if (activeTab === 'guides') { setSelectedGuide(item); setActiveScreen('guide_view'); } else { setSelectedTemplate(item); setFormData({}); setActiveScreen('form'); } }} className="bg-white p-7 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-orange-100/20 hover:border-mira-orange transition-all group cursor-pointer active:scale-[0.98] flex flex-col gap-4">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex flex-wrap gap-2">
-                                        <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-md ${item.category === CATEGORIES.IMMIGRATION ? 'bg-mira-blue' : 'bg-indigo-500'} text-white`}>
-                                            {item.category}
-                                        </span>
-                                        <span className="text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-md bg-slate-100 text-slate-400">
-                                            {item.authority || 'MIRA'}
-                                        </span>
-                                    </div>
-                                    <div className={`p-3 rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-mira-orange-pastel group-hover:text-mira-orange transition-colors`}>
-                                        <FileText size={20} />
-                                    </div>
-                                </div>
 
-                                <div>
-                                    <h3 className="font-black text-slate-900 text-xl uppercase tracking-tight leading-tight group-hover:text-mira-orange transition-colors">
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-[11px] text-slate-500 font-medium line-clamp-2 mt-2 leading-relaxed">
-                                        {item.description}
-                                    </p>
-                                </div>
+                    <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
+                        {activeTab === 'docs' ? (
+                            <div className="p-6 space-y-5">
+                                {filteredItems.length > 0 ? filteredItems.map((item: any) => (
+                                    <div key={item.id} onClick={() => { setSelectedTemplate(item); setFormData({}); setActiveScreen('form'); }} className="bg-white p-7 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-orange-100/20 hover:border-mira-orange transition-all group cursor-pointer active:scale-[0.98] flex flex-col gap-4">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex flex-wrap gap-2">
+                                                <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-md ${item.category === CATEGORIES.IMMIGRATION ? 'bg-mira-blue' : 'bg-indigo-500'} text-white`}>
+                                                    {item.category}
+                                                </span>
+                                                <span className="text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-md bg-slate-100 text-slate-400">
+                                                    {item.authority || 'MIRA'}
+                                                </span>
+                                            </div>
+                                            <div className={`p-3 rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-mira-orange-pastel group-hover:text-mira-orange transition-colors`}>
+                                                <FileText size={20} />
+                                            </div>
+                                        </div>
 
-                                <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center gap-1.5">
-                                            <Scale size={12} className="text-slate-300" />
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                                {t(`complexity_${(item.complexity || 'Easy').toLowerCase()}`, language)}
-                                            </span>
+                                        <div>
+                                            <h3 className="font-black text-slate-900 text-xl uppercase tracking-tight leading-tight group-hover:text-mira-orange transition-colors">
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-[11px] text-slate-500 font-medium line-clamp-2 mt-2 leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Scale size={12} className="text-slate-300" />
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                                        {t(`complexity_${(item.complexity || 'Easy').toLowerCase()}`, language)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <ChevronRight className="text-slate-300 group-hover:text-mira-orange group-hover:translate-x-1 transition-all" size={20} />
                                         </div>
                                     </div>
-                                    <ChevronRight className="text-slate-300 group-hover:text-mira-orange group-hover:translate-x-1 transition-all" size={20} />
-                                </div>
+                                )) : (
+                                    <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center">
+                                        <FileText size={64} className="mb-4" />
+                                        <p className="text-xs font-black uppercase tracking-widest">Nenhum documento encontrado</p>
+                                    </div>
+                                )}
                             </div>
-                        )) : (
-                            <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center">
-                                <FileText size={64} className="mb-4" />
-                                <p className="text-xs font-black uppercase tracking-widest">Nenhum documento encontrado</p>
-                            </div>
+                        ) : (
+                            <RegularizationWizard
+                                language={language}
+                                onSelectTemplate={(id) => {
+                                    const template = templates.find(t => t.id === id);
+                                    if (template) {
+                                        setSelectedTemplate(template);
+                                        setFormData({});
+                                        setActiveScreen('form');
+                                    }
+                                }}
+                                onGoToDocs={() => setActiveTab('docs')}
+                            />
                         )}
                     </div>
                 </div>
             )}
-
             {activeScreen === 'form' && (
                 <div className="flex flex-col h-full animate-in slide-in-from-right duration-500 relative">
                     <div className="p-5 border-b flex items-center justify-between bg-white z-10">

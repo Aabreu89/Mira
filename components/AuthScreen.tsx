@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { User } from '../types';
-import { Globe, Lock, Eye, EyeOff, Mail, ArrowLeft, CheckCircle2, ChevronDown, ShieldCheck, Key } from 'lucide-react';
+import { Globe, Lock, Eye, EyeOff, Mail, ArrowLeft, CheckCircle2, ChevronDown, ShieldCheck, Key, Users } from 'lucide-react';
 import { t } from '../utils/translations';
 import { MIRA_LOGO } from '../constants';
 
@@ -48,19 +48,30 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
             authData = data;
             authError = error;
         } else {
-            const { data, error } = await supabase.auth.signUp({
+            // Check denylist before signup
+            const { data: isDenied } = await supabase
+                .from('denied_emails')
+                .select('email')
+                .eq('email', email.trim())
+                .single();
+
+            if (isDenied) {
+                setErrorMsg('Este email foi bloqueado por violar os termos da comunidade.');
+                setIsLoading(false);
+                return;
+            }
+
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
                 email: email.trim(),
                 password: password,
                 options: {
                     data: { name: `Usuário ${Math.floor(Math.random() * 1000)}` }
                 }
             });
-            authData = data;
-            authError = error;
+            authData = signUpData;
+            authError = signUpError;
 
-            // Se for signUp puro, as vezes a sessão não volta logo de cara se tiver confirmação de e-mail ativada.
-            // Para nosso MVP, vamos assumir que tem auto-confirm no Supabase, mas tratar de acordo:
-            if (!authError && !authData.session) {
+            if (!authError && !authData?.session) {
                 setErrorMsg('Conta criada! Faça login com a sua senha.');
                 setIsLogin(true);
                 setIsLoading(false);
@@ -82,6 +93,21 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                 const { data: profile, error: profileErr } = await Promise.race([fetchProfile, timeout]);
 
                 if (profile && !profileErr) {
+                    if (profile.is_blocked) {
+                        await supabase.auth.signOut();
+                        setErrorMsg('A sua conta foi suspensa por um moderador.');
+                        setIsLoading(false);
+                        return;
+                    }
+
+                    // Sync email if missing (for existing users after migration)
+                    if (!profile.email && authData.session.user.email) {
+                        supabase.from('profiles')
+                            .update({ email: authData.session.user.email })
+                            .eq('id', profile.id)
+                            .then(() => console.log('Email sincronizado no perfil existente'));
+                    }
+
                     onLogin({
                         id: profile.id,
                         email: authData.session.user.email || '',
@@ -107,6 +133,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin, language, setLa
                     supabase.from('profiles').insert([{
                         id: authData.session.user.id,
                         name: defaultName,
+                        email: emailStr,
                         role: isAdmin ? 'admin' : 'member'
                     }]).then(() => console.log('Criou profile fallback'));
 

@@ -11,156 +11,243 @@ export const standardFields = [
 ];
 
 export const templates: DocumentTemplate[] = [
-    // --- LEGALIZAÇÃO (AIMA, IRN, CNAIM) ---
+    // --- RESIDÊNCIA E LEGALIZAÇÃO ---
     {
-        id: 'aima_modelo_1', title: 'Modelo 1 - Pedido e Renovação de Autorização de Residência (ARI/Reagrupamento)', category: CATEGORIES.IMMIGRATION, complexity: 'Hard', authority: 'AIMA', location: 'Balcão AIMA',
-        description: 'Impresso oficial para Pedido e Renovação de Autorização de Residência Temporária/Permanente, Cartão Azul UE e Reagrupamento Familiar.',
-        tips: 'Obtido de aima.gov.pt/pt/impressos-e-minutas',
-        requirements: ['Passaporte', 'Comprovativo Morada', 'Meios de Subsistência'],
-        fields: [...standardFields, { id: 'process_type', label: 'Tipo de Pedido', placeholder: 'Ex: Concessão, Renovação, Reagrupamento', type: 'text' }]
+        id: 'aima_ar_temp', title: 'Requerimento de Autorização de Residência Temporária (Modelo AIMA)', category: CATEGORIES.IMMIGRATION, complexity: 'Hard', authority: 'AIMA', location: 'Balcão AIMA',
+        description: 'Modelo oficial para pedido de concessão de Autorização de Residência Temporária.',
+        tips: 'Obtido de aima.gov.pt. Verifique se tem todos os anexos de meios de subsistência.',
+        requirements: ['Passaporte Válido', 'Visto de Entrada', 'Meios de Subsistência', 'Atestado de Morada'],
+        fields: [...standardFields, { id: 'visa_entry', label: 'Tipo de Visto de Entrada', placeholder: 'Ex: D3, D7, CPLP', type: 'text' }]
     },
     {
-        id: 'aima_modelo_4', title: 'Modelo 4 - Termo de Responsabilidade', category: CATEGORIES.IMMIGRATION, complexity: 'Medium', authority: 'AIMA', location: 'Notário / AIMA',
-        description: 'Termo de Responsabilidade para cidadãos estrangeiros entrarem ou permanecerem em Portugal. Exige assinatura reconhecida se não for assinado presencialmente na AIMA.',
-        tips: 'Obtido de aima.gov.pt/pt/impressos-e-minutas',
-        requirements: ['ID do Responsável', 'Comprovativo de Rendimentos do Responsável'],
-        fields: [...standardFields, { id: 'responsable_name', label: 'Nome do Cidadão Responsável', placeholder: 'Pessoa que se responsabiliza', type: 'text' }]
-    },
-    {
-        id: 'aima_modelo_mi', title: 'Modelo Manifestação de Interesse (Art 88/89)', category: CATEGORIES.IMMIGRATION, complexity: 'Hard', authority: 'AIMA', location: 'Portal/Balcão AIMA',
-        description: 'Apresentação de manifestação de interesse para concessão de AR para exercício de atividade profissional subordinada ou independente.',
-        tips: 'Documento histórico/recorrente listado em aima.gov.pt/pt/impressos-e-minutas.',
-        requirements: ['Contrato ou Promessa de Trabalho', 'Inscrição Seg. Social'],
-        fields: [...standardFields, { id: 'work_type', label: 'Tipo de Atividade', placeholder: 'Subordinada ou Independente', type: 'text' }]
-    },
-    {
-        id: 'aima_dec_alojamento', title: 'Minuta - Declaração de Alojamento', category: CATEGORIES.HOUSING, complexity: 'Easy', authority: 'AIMA', location: 'Portal/Balcão AIMA',
-        description: 'Minuta oficial da AIMA para atestar que o cidadão dispõe de alojamento em Portugal.',
-        tips: 'Obtido de aima.gov.pt/pt/impressos-e-minutas',
-        requirements: ['Cópia CC do Senhorio/Alojador'],
-        fields: [...standardFields, { id: 'host_name', label: 'Nome de quem aloja', placeholder: 'Proprietário ou Arrendatário principal', type: 'text' }]
-    },
-    {
-        id: 'aima_dec_patronal', title: 'Minuta - Declaração de Entidade Patronal', category: CATEGORIES.WORK, complexity: 'Easy', authority: 'AIMA', location: 'Portal/Balcão AIMA',
-        description: 'Declaração padrão da AIMA a ser preenchida pela empresa para comprovar o vínculo laboral do cidadão estrangeiro.',
-        tips: 'Obrigatório carimbo da empresa ou assinatura reconhecida.',
-        requirements: ['Contrato de Trabalho', 'Registo Comercial da Empresa'],
-        fields: [...standardFields, { id: 'company_name', label: 'Nome da Empresa', placeholder: '', type: 'text' }]
-    },
-    {
-        id: 'aima_dec_rendimentos', title: 'Minuta - Declaração de Posse de Rendimentos', category: CATEGORIES.FINANCE, complexity: 'Easy', authority: 'AIMA', location: 'Portal/Balcão AIMA',
-        description: 'Declaração sob compromisso de honra sobre a posse de meios de subsistência suficientes.',
-        tips: 'Obtido de aima.gov.pt/pt/impressos-e-minutas',
-        requirements: ['Extratos Bancários', 'Recibos de Vencimento'],
-        fields: [...standardFields, { id: 'income_amount', label: 'Valor Mensal dos Rendimentos (€)', placeholder: 'Ex: 820,00', type: 'number' }]
-    },
-    {
-        id: 'aima_igualdade', title: 'Modelo Estatuto de Igualdade de Direitos e Deveres', category: CATEGORIES.RIGHTS, complexity: 'Medium', authority: 'AIMA', location: 'Balcão AIMA / IRN',
-        description: 'Impresso para requerimento do Estatuto de Igualdade para cidadãos Brasileiros.',
-        tips: 'Permite aceder a direitos equivalentes. Obtido de aima.gov.pt/pt/impressos-e-minutas',
-        requirements: ['Cartão de Residência Válido', 'Certificado de Nacionalidade'],
+        id: 'aima_ar_renovacao', title: 'Requerimento de Renovação de Autorização de Residência', category: CATEGORIES.IMMIGRATION, complexity: 'Medium', authority: 'AIMA', location: 'Portal/Balcão AIMA',
+        description: 'Pedido para renovar o título de residência antes do fim da sua validade.',
+        tips: 'Deve ser solicitado entre 90 a 30 dias antes da caducidade.',
+        requirements: ['Título de Residência Atual', 'Prova de Manutenção de Condições'],
         fields: [...standardFields]
     },
     {
-        id: 'aima_prorrogacao', title: 'Pedido de Prorrogação de Permanência (Modelo 2 / Modelo 3)', category: CATEGORIES.IMMIGRATION, complexity: 'Medium', authority: 'AIMA', location: 'Balcão AIMA',
-        description: 'Requerimento oficial (Modelo 2 ou 3) para estender a validade de um visto de curta duração ou estada temporária.',
-        tips: 'Ver mais info em aima.gov.pt/pt/impressos-e-minutas',
-        requirements: ['Seguro Saúde', 'Prova Meios'],
-        fields: [...standardFields, { id: 'reason_extension', label: 'Motivo da Prorrogação', placeholder: 'Ex: Tratamento médico, turismo prolongado', type: 'text' }]
+        id: 'aima_dec_alojamento', title: 'Declaração de Alojamento (Residência / Hospitalidade)', category: CATEGORIES.IMMIGRATION, complexity: 'Easy', authority: 'AIMA', location: 'Balcão AIMA / Portal',
+        description: 'Documento onde um residente legal atesta que providencia alojamento ao migrante.',
+        tips: 'Deve ser acompanhado de cópia do BI/CC de quem assina.',
+        requirements: ['Identificação do Alojador'],
+        fields: [...standardFields, { id: 'host_name', label: 'Nome de quem aloja', placeholder: 'Proprietário ou Residente', type: 'text' }]
     },
     {
-        id: 'aima_reagrupamento', title: 'Requerimento de Reagrupamento Familiar', category: CATEGORIES.IMMIGRATION, complexity: 'Hard', authority: 'AIMA', location: 'Portal/Balcão AIMA',
-        description: 'Formulário para trazer familiares diretos para viver legalmente consigo em Portugal. Atualizado conforme aima.gov.pt',
-        tips: 'A morada declarada deve ter espaço suficiente para o agregado.',
-        requirements: ['Prova Parentesco', 'Meios Subsistência'],
-        fields: [...standardFields, { id: 'family_member_name', label: 'Nome do Familiar a Reagrupar', placeholder: 'Nome completo do familiar', type: 'text' }, { id: 'kinship_degree', label: 'Grau de Parentesco', placeholder: 'Cônjuge, filho, etc.', type: 'text' }]
+        id: 'aima_dec_responsabilidade', title: 'Declaração de Responsabilidade (Reagrupamento Familiar)', category: CATEGORIES.IMMIGRATION, complexity: 'Medium', authority: 'AIMA', location: 'Notário / AIMA',
+        description: 'Termo onde o residente se responsabiliza pelos encargos do familiar a reagrupar.',
+        tips: 'Necessário para processos de artigo 98.º.',
+        requirements: ['ID do Responsável', 'Comprovativo de Rendimentos'],
+        fields: [...standardFields, { id: 'family_member', label: 'Nome do Familiar', placeholder: 'A reagrupar', type: 'text' }]
     },
     {
-        id: 'cnaim_ap', title: 'Ficha de Registo - Atendimento CNAIM', category: CATEGORIES.IMMIGRATION, complexity: 'Easy', authority: 'CNAIM', location: 'CNAIM',
-        description: 'Documento inicial para marcação e ficha de triagem nos Centros Nacionais de Apoio à Integração de Migrantes.',
-        tips: 'Para mais informações ligue para a Linha de Apoio a Migrantes (gov.pt).',
-        requirements: ['Identificação'],
+        id: 'aima_dec_sustento', title: 'Declaração de Sustento / Garantia Financeira', category: CATEGORIES.IMMIGRATION, complexity: 'Easy', authority: 'AIMA', location: 'Portal/Balcão AIMA',
+        description: 'Prova sob compromisso de honra da posse de meios de subsistência.',
+        tips: 'Deve bater certo com os extratos bancários apresentados.',
+        requirements: ['Extratos Bancários', 'Contrato de Trabalho'],
+        fields: [...standardFields, { id: 'income_val', label: 'Valor Mensal (€)', placeholder: 'Ex: 820.00', type: 'number' }]
+    },
+    {
+        id: 'aima_ar_humanitaria', title: 'Requerimento de AR por Razões Humanitárias (Proteção Internacional)', category: CATEGORIES.IMMIGRATION, complexity: 'Hard', authority: 'AIMA', location: 'Balcão AIMA',
+        description: 'Pedido de autorização de residência ao abrigo do regime de proteção internacional.',
+        tips: 'Utilizado em casos de asilo ou proteção subsidiária.',
+        requirements: ['Prova de Grave Risco', 'Documento de Identificação'],
+        fields: [...standardFields, { id: 'reason_humanitarian', label: 'Motivo do Pedido', placeholder: 'Asilo, Razões Humanitárias', type: 'text' }]
+    },
+    {
+        id: 'crue_req', title: 'Certificado de Registo de Cidadão da União Europeia (UE/EEE)', category: CATEGORIES.IMMIGRATION, complexity: 'Easy', authority: 'Câmara Municipal', location: 'Câmara Municipal Local',
+        description: 'Registo obrigatório para cidadãos europeus após 3 meses em Portugal.',
+        tips: 'Feito na hora em muitas Câmaras Municipais.',
+        requirements: ['Documento ID Europeu', 'Prova de Meios ou Trabalho'],
+        fields: [...standardFields]
+    },
+
+    // --- REGISTOS E NACIONALIDADE ---
+    {
+        id: 'irn_nacionalidade_casamento', title: 'Pedido de Nacionalidade Portuguesa (Por Casamento/União)', category: CATEGORIES.RIGHTS, complexity: 'Hard', authority: 'IRN', location: 'Conservatória do Registo Civil',
+        description: 'Nacionalidade para cônjuges de portugueses há mais de 3 anos.',
+        tips: 'A ligação à comunidade é presumida se houver filhos comuns ou tempo de residência.',
+        requirements: ['Certidões de Nascimento e Casamento', 'Registo Criminal'],
+        fields: [...standardFields, { id: 'spouse_name', label: 'Nome do Cônjuge', placeholder: 'Nome completo', type: 'text' }]
+    },
+    {
+        id: 'irn_nacionalidade_residencia', title: 'Pedido de Nacionalidade Portuguesa (Por Residência)', category: CATEGORIES.RIGHTS, complexity: 'Hard', authority: 'IRN', location: 'Conservatória IRN',
+        description: 'Naturalização após 5 anos de residência legal.',
+        tips: 'O exame CIPLE é obrigatório para falantes de línguas não lusófonas.',
+        requirements: ['Certificado Habilitações', 'Registo Criminal'],
         fields: [...standardFields]
     },
     {
-        id: 'irn_nacionalidade_art6', title: 'Pedido de Nacionalidade Portuguesa (Tempo de Residência)', category: CATEGORIES.RIGHTS, complexity: 'Hard', authority: 'IRN', location: 'Conservatória IRN',
-        description: 'Processo de naturalização ao fim de 5 anos de residência legal (Art. 6º da Lei da Nacionalidade).',
-        tips: 'Verificar lista atualizada no portal irn.justica.gov.pt.',
-        requirements: ['Certificado Registo Criminal', 'Prova de Conhecimentos da Língua', 'ID/Passaporte'],
+        id: 'certidao_civil_req', title: 'Requerimento de Certidão de Nascimento / Casamento / Óbito', category: CATEGORIES.RIGHTS, complexity: 'Easy', authority: 'IRN', location: 'Civil Online / Conservatória',
+        description: 'Pedido oficial de atos do registo civil.',
+        tips: 'O código de acesso online é válido por 6 meses.',
+        requirements: ['Dados do Ato', 'Identificação do Requerente'],
+        fields: [...standardFields, { id: 'cert_type', label: 'Tipo de Certidão', placeholder: 'Nacionalidade, Casamento, etc.', type: 'text' }]
+    },
+    {
+        id: 'nacionalidade_filhos', title: 'Nacionalidade para Filhos de Estrangeiros Nascidos em Portugal', category: CATEGORIES.RIGHTS, complexity: 'Medium', authority: 'IRN', location: 'Conservatória',
+        description: 'Direito por nascimento (Jus Soli) sob condições de residência dos pais.',
+        tips: 'Bastante rápido se um dos pais tiver residência há 1 ano.',
+        requirements: ['Assento Nascimento Menor', 'ID Pais'],
+        fields: [...standardFields, { id: 'child_name', label: 'Nome da Criança', placeholder: 'Nome completo', type: 'text' }]
+    },
+    {
+        id: 'procuracao_registo', title: 'Formulário de Procuração (Representação Conservatória)', category: CATEGORIES.RIGHTS, complexity: 'Medium', authority: 'IRN', location: 'Notário / Advogado',
+        description: 'Dá poderes a outrem para tratar de registos em seu nome.',
+        tips: 'A tradução é necessária se for feita no estrangeiro.',
+        requirements: ['Dados do Procurador'],
+        fields: [...standardFields, { id: 'attorney_name', label: 'Nome do Procurador', placeholder: 'Nome completo', type: 'text' }]
+    },
+    {
+        id: 'irn_cc_resident', title: 'Requerimento de Cartão de Cidadão / Renovação (Residentes)', category: CATEGORIES.RIGHTS, complexity: 'Medium', authority: 'IRN', location: 'Loja Cidadão',
+        description: 'Emissão de ID para quem tem direitos equiparados ou nacionalidade.',
+        tips: 'Agende via Siga ou portal da justiça.',
+        requirements: ['Título Residência / CC Anterior'],
         fields: [...standardFields]
     },
-    // --- EDUCAÇÃO E ESTUDO (DGES, Passaporte Qualifica) ---
+
+    // --- EMPREGO E FORMAÇÃO ---
     {
-        id: 'dges_reconhecimento', title: 'Formulário de Reconhecimento de Grau Académico', category: CATEGORIES.EDUCATION, complexity: 'Hard', authority: 'DGES', location: 'Portal DGES',
-        description: 'Pedido oficial para reconhecimento de habilitações obtidas no estrangeiro (Mestrado, Licenciatura, etc).',
-        tips: 'Certifique-se de preencher através do portal de serviços da DGES (dges.gov.pt). Todos os documentos do estrangeiro necessitam de Apostila.',
-        requirements: ['Diploma Apostilado', 'Histórico Escolar', 'Tese (se aplicável)'],
-        fields: [...standardFields, { id: 'degree_name', label: 'Nome do Grau Académico Estrangeiro', placeholder: 'Ex: Bacharel em Engenharia', type: 'text' }]
-    },
-    {
-        id: 'qualifica_rvcc', title: 'Ficha de Inscrição Centro Qualifica (RVCC)', category: CATEGORIES.EDUCATION, complexity: 'Medium', authority: 'Passaporte Qualifica', location: 'Centros Qualifica',
-        description: 'Inscrição para o processo de Reconhecimento, Validação e Certificação de Competências (escolares ou profissionais).',
-        tips: 'Registe-se em passaportequalifica.gov.pt antes de avançar.',
-        requirements: ['Documento ID', 'Currículo', 'Certificados Adicionais'],
-        fields: [...standardFields, { id: 'scholarity', label: 'Nível de Escolaridade Atual', placeholder: 'Ex: Ensino Médio Completo', type: 'text' }]
-    },
-    // --- TRABALHO E FINANÇAS (IEFP, Finanças, SS) ---
-    {
-        id: 'iefp_inscricao', title: 'Inscrição para Oferta de Emprego IEFP', category: CATEGORIES.WORK, complexity: 'Easy', authority: 'IEFP', location: 'iefponline.iefp.pt',
-        description: 'Ficha de candidatura para resposta imediata a vagas (Pesquisa categoria: OfertaEmprego).',
-        tips: 'Ter o CV sempre atualizado e o NISS pronto (iefp.pt).',
-        requirements: ['Currículo Vitae Europass', 'Autorização de Residência (CPLP ou AR)'],
-        fields: [...standardFields, { id: 'job_ref', label: 'Referência da Oferta', placeholder: 'Ex: 588961726', type: 'text' }]
-    },
-    {
-        id: 'ss_niss', title: 'Mod. RV 1000 - Inscrição na Segurança Social (NISS)', category: CATEGORIES.FINANCE, complexity: 'Medium', authority: 'Segurança Social', location: 'seg-social.pt',
-        description: 'Pedido oficial através de formulário para obtenção do Número de Segurança Social para cidadão estrangeiro sem NAI.',
-        tips: 'Consulte seg-social.pt/formularios para aceder a versões mais atuais se necessário.',
-        requirements: ['Passaporte/ID', 'NIF'],
+        id: 'iefp_inscricao', title: 'Inscrição para Oferta de Emprego IEFP', category: CATEGORIES.WORK, complexity: 'Easy', authority: 'IEFP', location: 'iefponline',
+        description: 'Registo no centro de emprego para ofertas e formação.',
+        tips: 'Esteja atento ao e-mail para convocatórias.',
+        requirements: ['Identificação', 'CV'],
         fields: [...standardFields]
     },
     {
-        id: 'ss_nib', title: 'Mod. MG 2 - Alteração de IBAN (Segurança Social)', category: CATEGORIES.FINANCE, complexity: 'Easy', authority: 'Segurança Social', location: 'seg-social.pt',
-        description: 'Documento para registar ou alterar a conta bancária para recebimento de apoios sociais ou baixa médica.',
-        tips: 'O IBAN tem de pertencer ao mesmo NIF da inscrição de segurança social.',
-        requirements: ['Comprovativo IBAN Autorizado'],
-        fields: [...standardFields, { id: 'iban', label: 'Novo IBAN', placeholder: 'PT50 0000...', type: 'text' }]
+        id: 'iefp_reembolso_formacao', title: 'Pedido de Reembolso de Despesas (IEFP)', category: CATEGORIES.WORK, complexity: 'Easy', authority: 'IEFP', location: 'Centro Emprego',
+        description: 'Reembolso de transportes e alimentação em cursos do IEFP.',
+        tips: 'Deve ser submetido mensalmente.',
+        requirements: ['Faturas', 'Folhas de Presença'],
+        fields: [...standardFields, { id: 'course_code', label: 'Cód. Curso', placeholder: 'Ex: 1234', type: 'text' }]
     },
     {
-        id: 'at_rep_fiscal', title: 'Nomeação de Representante Fiscal', category: CATEGORIES.FINANCE, complexity: 'Medium', authority: 'Autoridade Tributária', location: 'Portal das Finanças',
-        description: 'Obrigatório para estrangeiros residentes fora da UE que desejem obter NIF ou manter património em Portugal.',
-        tips: 'Aceda a portaldasfinancas.gov.pt para confirmar e aceitar.',
-        requirements: ['ID do Representado', 'NIF e ID do Representante'],
-        fields: [...standardFields, { id: 'rep_nif', label: 'NIF do Representante Fiscal', placeholder: '9 algarismos', type: 'text' }]
+        id: 'ss_dec_desemprego', title: 'Declaração de Situação de Desemprego (RP 5044)', category: CATEGORIES.WORK, complexity: 'Medium', authority: 'Segurança Social', location: 'Empresa / SS',
+        description: 'Prova de fim de contrato para acesso a subsídio.',
+        tips: 'A empresa tem obrigação de entregar ao trabalhador.',
+        requirements: ['Dados Empresa', 'Motivo Fim Contrato'],
+        fields: [...standardFields, { id: 'company_name', label: 'Empresa', placeholder: 'Nome da entidade', type: 'text' }]
     },
+
+    // --- SEGURANÇA SOCIAL ---
+    {
+        id: 'ss_abono_familia', title: 'Requerimento de Abono de Família / Apoio Social / RSI', category: CATEGORIES.SOCIAL_SECURITY, complexity: 'Medium', authority: 'Segurança Social', location: 'SS Direta',
+        description: 'Apoio monetário mensal para famílias e crianças.',
+        tips: 'O escalão depende do rendimento médio do agregado.',
+        requirements: ['Agregado Familiar', 'Rendimentos'],
+        fields: [...standardFields, { id: 'num_agregado', label: 'N.º Membros', placeholder: 'Ex: 3', type: 'number' }]
+    },
+    {
+        id: 'ss_dec_situacao_economica', title: 'Declaração de Situação Económica', category: CATEGORIES.SOCIAL_SECURITY, complexity: 'Medium', authority: 'Segurança Social', location: 'SS Direta',
+        description: 'Provar insuficiência económica para isenções ou apoios.',
+        tips: 'Muito usado para isenção de taxas moderadoras.',
+        requirements: ['IRS / Prova Rendimentos'],
+        fields: [...standardFields]
+    },
+    {
+        id: 'ss_niss', title: 'Inscrição na Segurança Social (Atribuição NISS)', category: CATEGORIES.SOCIAL_SECURITY, complexity: 'Medium', authority: 'Segurança Social', location: 'Loja Cidadão / Online',
+        description: 'Pedido de número para trabalhar e descontar.',
+        tips: 'Se for trabalhador independente, o processo é diferente.',
+        requirements: ['Identificação', 'NIF'],
+        fields: [...standardFields]
+    },
+
     // --- SAÚDE (SNS) ---
     {
-        id: 'sns_inscricao', title: 'Ficha de Inscrição RNUT (Registo Nacional Utentes)', category: CATEGORIES.HEALTH, complexity: 'Medium', authority: 'SNS', location: 'sns.gov.pt',
-        description: 'Pedido de inscrição no Centro de Saúde e emissão do número de utente provisório ou definitivo.',
-        tips: 'Veja a área informativa em sns.gov.pt/infos/sns/. Requer morada comprovada.',
-        requirements: ['Passaporte', 'Atestado de Morada', 'Visto/Autorização de Residência'],
+        id: 'sns_inscricao', title: 'Inscrição no Centro de Saúde (N.º Utente)', category: CATEGORIES.HEALTH, complexity: 'Medium', authority: 'SNS', location: 'Centro de Saúde',
+        description: 'Registo no RNUT para acesso a cuidados médicos.',
+        tips: 'Pode ser difícil em zonas com muita pressão migratória; insista no direito à saúde.',
+        requirements: ['ID', 'NIF', 'Atestado Freguesia'],
         fields: [...standardFields]
     },
     {
-        id: 'sns24_isencao', title: 'Pedido de Isenção de Taxas Moderadoras', category: CATEGORIES.HEALTH, complexity: 'Medium', authority: 'SNS', location: 'sns24.gov.pt',
-        description: 'Requerimento para cidadãos em situação de insuficiência económica acederem à saúde sem pagamento de taxas extra.',
-        tips: 'Com base na documentação presente em sns24.gov.pt/documentos.',
-        requirements: ['Atestado de Junta de Freguesia ou SS', 'Comprovativo de Rendimentos'],
-        fields: [...standardFields, { id: 'household_size', label: 'Tamanho do Agregado Familiar', placeholder: 'Ex: 4', type: 'number' }]
-    },
-    // --- OUTROS DOCUMENTOS ÚTEIS ---
-    {
-        id: 'junta_morada', title: 'Atestado de Residência (Junta de Freguesia)', category: CATEGORIES.COMMUNITY, complexity: 'Easy', authority: 'Junta de Freguesia', location: 'Junta Local',
-        description: 'Prova oficial de domicílio.', tips: 'Consulte a sua junta de freguesia para requerimentos atualizados.', requirements: ['ID', 'Contrato Arrendamento'], fields: [...standardFields]
+        id: 'sns_alteracao_dados', title: 'Alteração de Morada ou Contacto no SNS', category: CATEGORIES.HEALTH, complexity: 'Easy', authority: 'SNS', location: 'Centro Saúde / Online',
+        description: 'Atualizar telefone ou casa no registo de utente.',
+        tips: 'Garanta que recebe SMS para consultas.',
+        requirements: ['N.º Utente'],
+        fields: [...standardFields, { id: 'phone', label: 'Novo Telefone', placeholder: '9 dígitos', type: 'text' }]
     },
     {
-        id: 'prop_auth', title: 'Autorização do Proprietário (Alojamento)', category: CATEGORIES.HOUSING, complexity: 'Easy', authority: 'Proprietário', location: 'Privado',
-        description: 'Declaração onde o dono do imóvel autoriza a residência.', tips: 'Assegure-se de que a assinatura do proprietário é reconhecida ou igual ao CC.', requirements: ['ID Proprietário'], fields: [...standardFields, { id: 'owner_name', label: 'Nome do Proprietário', placeholder: '', type: 'text' }]
+        id: 'sns_reembolso_despesas', title: 'Pedido de Reembolso de Despesas de Saúde', category: CATEGORIES.HEALTH, complexity: 'Medium', authority: 'SNS', location: 'ACES',
+        description: 'Devolução de taxas ou exames em regime convencionado.',
+        tips: 'Anexe sempre prescrição médica.',
+        requirements: ['Faturas NIF', 'Prescrição'],
+        fields: [...standardFields, { id: 'invoice', label: 'N.º Fatura', placeholder: 'Ex: 123/2024', type: 'text' }]
+    },
+
+    // --- FINANÇAS ---
+    {
+        id: 'nif_req', title: 'Pedido de Número de Identificação Fiscal (NIF)', category: CATEGORIES.FINANCE, complexity: 'Easy', authority: 'AT', location: 'Finanças',
+        description: 'Atribuição de número fiscal português.',
+        tips: 'Traga um representante fiscal se vier de fora da UE.',
+        requirements: ['Passaporte'],
+        fields: [...standardFields]
+    },
+    {
+        id: 'at_rep_fiscal', title: 'Declaração de Representante Fiscal', category: CATEGORIES.FINANCE, complexity: 'Medium', authority: 'AT', location: 'Finanças Online',
+        description: 'Nomear quem responde por si perante o fisco.',
+        tips: 'O representante tem de validar no portal dele.',
+        requirements: ['ID Representante'],
+        fields: [...standardFields, { id: 'rep_nif', label: 'NIF Representante', placeholder: '9 dígitos', type: 'text' }]
+    },
+    {
+        id: 'at_alteracao_morada', title: 'Alteração de Morada Fiscal', category: CATEGORIES.FINANCE, complexity: 'Easy', authority: 'AT', location: 'Portal Finanças',
+        description: 'Atualizar domicílio oficial nas Finanças.',
+        tips: 'Se tiver Chave Móvel Digital, faz-se em 2 minutos.',
+        requirements: ['Nova Morada'],
+        fields: [...standardFields, { id: 'new_addr', label: 'Morada Nova', placeholder: 'Rua, n.º, CP', type: 'text' }]
+    },
+
+    // --- EDUCAÇÃO E RECONHECIMENTO ---
+    {
+        id: 'dges_reconhecimento', title: 'Reconhecimento de Habilitações Académicas Estrangeiras', category: CATEGORIES.EDUCATION, complexity: 'Hard', authority: 'DGES', location: 'Portal DGES',
+        description: 'Validar diplomas superiores do estrangeiro.',
+        tips: 'A tradução certificada é obrigatória se não estiver em PT/EN/FR/ES.',
+        requirements: ['Diploma Apostilado', 'Histórico'],
+        fields: [...standardFields, { id: 'course', label: 'Curso', placeholder: 'Nome da Licenciatura/Mestrado', type: 'text' }]
+    },
+    {
+        id: 'dge_secundario_equivalencia', title: 'Equivalência de Estudos do Ensino Secundário', category: CATEGORIES.EDUCATION, complexity: 'Medium', authority: 'DGE', location: 'Escola Secundária',
+        description: 'Validar o 12.º ano para trabalhar ou estudar.',
+        tips: 'Necessário para tirar carta de condução em alguns casos.',
+        requirements: ['Certificado Notas Apostilado'],
+        fields: [...standardFields]
+    },
+
+    // --- DIREITOS E APOIOS SOCIAIS ---
+    {
+        id: 'denuncia_discriminacao', title: 'Denúncia de Discriminação Racial ou Étnica', category: CATEGORIES.SOCIAL_SUPPORT, complexity: 'Medium', authority: 'CICDR', location: 'Online',
+        description: 'Relatar atos de racismo ou xenofobia.',
+        tips: 'Não tenha medo de denunciar; o MIRA apoia a sua voz.',
+        requirements: ['Relato do Ocorrido'],
+        fields: [...standardFields, { id: 'incident_date', label: 'Data', placeholder: 'AAAA-MM-DD', type: 'date' }]
+    },
+    {
+        id: 'dec_violencia_domestica', title: 'Pedido de Estatuto de Vítima de Violência Doméstica', category: CATEGORIES.SOCIAL_SUPPORT, complexity: 'Medium', authority: 'PSP / GNR', location: 'Esquadra',
+        description: 'Proteção legal imediata para vítimas.',
+        tips: 'Confidencial e urgente.',
+        requirements: ['Denúncia / Queixa'],
+        fields: [...standardFields]
+    },
+
+    // --- HABITAÇÃO ---
+    {
+        id: 'apoio_arrendamento', title: 'Pedido de Apoio ao Arrendamento (Porta de Entrada)', category: CATEGORIES.HOUSING, complexity: 'Hard', authority: 'IHRU', location: 'Portal Habitação',
+        description: 'Apoio financeiro governamental para pagar a renda.',
+        tips: 'O contrato deve estar registado nas Finanças.',
+        requirements: ['Contrato Arrendamento', 'Rendimentos'],
+        fields: [...standardFields, { id: 'rent', label: 'Valor Renda (€)', placeholder: 'Ex: 500', type: 'number' }]
+    },
+    {
+        id: 'junta_morada', title: 'Atestado de Residência (Junta de Freguesia)', category: CATEGORIES.HOUSING, complexity: 'Easy', authority: 'Junta Freguesia', location: 'Junta Freguesia',
+        description: 'Comprovativo oficial de morada local.',
+        tips: 'Pode precisar de testemunhas locais se não tiver contrato.',
+        requirements: ['ID', 'Prova Morada'],
+        fields: [...standardFields]
     }
 ];
 
 export const serviceGuides = [
-    // --- GUIAS AIMA & LEGALIZAÇÃO ---
     {
         id: 'g_manifestacao_cima', category: CATEGORIES.IMMIGRATION, title: 'Nova Autorização de Residência (Pós-MI)', authority: 'AIMA',
         description: 'Como transitar da antiga Manifestação de Interesse para os novos fluxos CPLP/Vistos em 2026.',
@@ -192,7 +279,6 @@ export const serviceGuides = [
         ],
         faq: [{ q: 'Onde encontro as leis base?', a: 'Toda a jurisprudência está em diariodarepublica.pt ou eur-lex.europa.eu para diretivas europeias.' }]
     },
-    // --- ESTUDOS & QUALIFICAÇÕES ---
     {
         id: 'g_dges_reconhecimento', category: CATEGORIES.EDUCATION, title: 'Reconhecimento de Graus Estrangeiros', authority: 'DGES',
         description: 'Como usar a plataforma de Reconhecimento de Qualificações Estrangeiras.',
@@ -205,72 +291,43 @@ export const serviceGuides = [
         faq: [{ q: 'É imediato?', a: 'O Reconhecimento Automático leva até 30 dias; os específicos podem levar vários meses.' }]
     },
     {
-        id: 'g_passaporte_qualifica', category: CATEGORIES.EDUCATION, title: 'Concluir Escola/Acreditação de Competências', authority: 'Passaporte Qualifica',
-        description: 'Sistema nacional para valorizar a experiência profissional num diploma de ensino ou nível técnico.',
-        explanation: 'Óptimo para imigrantes que têm experiência profunda numa área, mas não têm o certificado letivo concluído no país de origem.',
-        steps: [
-            { docName: 'Registo Centro Qualifica', whereToGet: 'No portal qualifica.gov.pt' },
-            { docName: 'Sessão de Triagem (Análise de CV)', whereToGet: 'Online ou em escolas públicas.' }
-        ],
-        faq: [{ q: 'Há limites de idade?', a: 'É direcionado sobretudo para adultos maiores de 18 (RVCC Profissional) e maiores de 23 (Escolar).' }]
-    },
-    // --- TRABALHO E FINANÇAS ---
-    {
-        id: 'g_eures', category: CATEGORIES.WORK, title: 'Portal EURES (Emprego na Europa)', authority: 'EURES',
-        description: 'Portal Europeu da Mobilidade Profissional com impacto em Portugal.',
-        explanation: 'Para quem já detém Cidadania Portuguesa ou Visto que permita trabalhar em outros países, o EURES é a plataforma unida (eures.europa.eu).',
-        steps: [
-            { docName: 'Registo Europass', whereToGet: 'Fazer um CV em formato europeu (obrigatório para vagas da UE).' },
-            { docName: 'Candidatura no Portal EURES', whereToGet: 'Plataforma oficial da UE.' }
-        ],
-        faq: [{ q: 'IEFP e EURES estão ligados?', a: 'Sim, o IEFP (Rede EURES Portugal) é a ponte nacional para todas as oportunidades lá publicadas.' }]
-    },
-    {
         id: 'g_ss_direta', category: CATEGORIES.FINANCE, title: 'Guia SS Direta: Apoios', authority: 'Segurança Social',
         description: 'Navegar no portal Segurança Social (seg-social.pt) de forma simples.',
         explanation: 'Desde solicitar abonos a Subsídios Familiares, a SS Direta é onde o migrante controla as suas contribuições.',
         steps: [
             { docName: 'Chave Móvel Digital ou Senha SS', whereToGet: 'gov.pt (Chave Móvel) ou no balcão físico da SS.' },
-            { docName: 'IBAN na plataforma', whereToGet: 'Obrigatório para receber qualquer valor (ver formularios no portal SS).' }
+            { docName: 'IBAN na plataforma', whereToGet: 'Obrigatório para receber qualquer valor.' }
         ],
-        faq: [{ q: 'Como sei se os descontos estão registados?', a: 'Na SS Direta, vá a Remunerações > Conta-Corrente para verificar se o seu patrão declarou os honorários do seu último recibo de vencimento.' }]
-    },
-    // --- SAÚDE ---
-    {
-        id: 'g_sns_24', category: CATEGORIES.HEALTH, title: 'Como utilizar o portal SNS 24', authority: 'Ministério da Saúde (SNS)',
-        description: 'Gestão de saúde online para o imigrante residente.',
-        explanation: 'Em sns24.gov.pt, pode marcar consultas, pedir receitas e aceder a atestados médicos.',
-        steps: [
-            { docName: 'Ter Número de Utente e Chave Móvel Digital', whereToGet: 'A inscrição pode iniciar-se fisicamente no seu Centro de Saúde e consolidar-se online.' }
-        ],
-        faq: [{ q: 'Onde consulto a política de saúde governamental?', a: 'Veja sempre na área da Saúde do portal do Governo em portugal.gov.pt/pt/gc23/area-de-governo/saude para ficar atualizado das vacinas gratuitas ou planos de atendimento para migrantes.' }]
-    },
-    // --- ESTATUTOS ESPECÍFICOS & ACORDOS BILATERAIS ---
-    {
-        id: 'g_estatuto_igualdade', category: CATEGORIES.RIGHTS, title: 'Como Tirar o Cartão de Cidadão (Estatuto de Igualdade - Brasileiros)', authority: 'IRN / AIMA',
-        description: 'Como obter a Igualdade de Direitos Civis e emitir o Cartão de Cidadão português.',
-        explanation: 'O Tratado de Porto Seguro permite que cidadãos brasileiros com residência legal obtenham os mesmos direitos civis que os portugueses. Com isso aprovado, é possível solicitar a emissão do Cartão de Cidadão Português que atesta esse estatuto e substitui o uso diário do Título de Residência e passaporte dentro do país.',
-        steps: [
-            { docName: 'Certificado de Nacionalidade', whereToGet: 'Solicitado no Consulado-Geral do Brasil em Portugal atestando que não lhe foi retirada a nacionalidade.' },
-            { docName: 'Cópia do Título de Residência', whereToGet: 'Válido (em formato físico ou CPLP digital dependendo das aceitações recentes da AIMA).' },
-            { docName: 'Formulário ou Pedido Online', whereToGet: 'Através da plataforma e-Portugal ou formulários presenciais sob tutela da AIMA transferidos ao IRN (irn.justica.gov.pt).' }
-        ],
-        faq: [
-            { q: 'O Cartão de Cidadão serve para viajar pela Europa toda?', a: 'Não. O Cartão emitido ao abrigo deste Estatuto traz menção à nacionalidade brasileira e não confere passaporte europeu livre. Tem validade identificativa fundamentalmente no território português.' },
-            { q: 'Demora muito?', a: 'Os processos ganharam um formato mais digitalizado, mas podem demorar de 3 a 6 meses sob análise e posterior agendamento no IRN.' }
-        ]
+        faq: [{ q: 'Como sei se os descontos estão registados?', a: 'Na SS Direta, vá a Remunerações > Conta-Corrente.' }]
     },
     {
-        id: 'g_direitos_politicos', category: CATEGORIES.RIGHTS, title: 'Direitos Iguais e Direitos Políticos', authority: 'IRN / Comissão Nacional de Eleições',
-        description: 'Como obter direito de voto e elegibilidade política em Portugal.',
-        explanation: 'Imigrantes com o Estatuto de Igualdade podem alargar os seus direitos civis para os Direitos Políticos, permitindo votar e ser votado em eleições num quadro similar aos portugueses. É necessário estar há pelo menos 3 anos documentado e legalizado (para votar) e mais tempo para certas elegibilidades.',
+        id: 'g_sns_24', category: CATEGORIES.HEALTH, title: 'Como utilizar o portal SNS 24', authority: 'SNS',
+        description: 'Gestão da sua saúde pública online: consultas, receitas e teleatendimento.',
+        explanation: 'O SNS 24 permite agendar consultas no centro de saúde, renovar receitas e consultar o boletim de vacinas sem sair de casa.',
         steps: [
-            { docName: 'Pedido de Igualdade de Direitos Políticos', whereToGet: 'Pode ser submetido em simultâneo ou após obter o Estatuto de Direitos Civis no portal da Justiça.' },
-            { docName: 'Comprovativo de Residência Prolongada', whereToGet: 'Baseado no seu registo de Títulos de Residência emitidos ao longo dos anos.' }
+            { docName: 'Chave Móvel Digital', whereToGet: 'Ativada remotamente ou no Espaço Cidadão.' },
+            { docName: 'App SNS 24', whereToGet: 'Instalar na App Store ou Play Store.' }
         ],
-        faq: [
-            { q: 'Se eu votar em Portugal, continuo a votar no Brasil?', a: 'Segundo o acordo, é aplicável a suspensão do exercício destes direitos no país de origem enquanto os exercer ativamente no outro Estado.' },
-            { q: 'Qualquer imigrante pode pedir os Direitos Políticos?', a: 'Os Direitos Políticos plenos através do Tratado de Amizade são exclusivos para brasileiros. Contudo, outros estrangeiros têm direitos cívicos limitados nas Eleições Autárquicas (locais) se forem de países com reciprocidade ou longa permanência.' }
-        ]
+        faq: [{ q: 'O que é a Triagem da Linha SNS 24?', a: 'Ligue 808 24 24 24 antes de ir às urgências para ser aconselhado e triado.' }]
+    },
+    {
+        id: 'g_estatuto_igualdade', category: CATEGORIES.RIGHTS, title: 'CC (Estatuto de Igualdade - Brasileiros)', authority: 'IRN / AIMA',
+        description: 'Tratado de Porto Seguro: Direitos e deveres iguais aos dos cidadãos portugueses.',
+        explanation: 'Cidadãos brasileiros residentes podem pedir o Estatuto de Igualdade de Direitos e Deveres para ter o Cartão de Cidadão português.',
+        steps: [
+            { docName: 'Certificado de Residência', whereToGet: 'Emitido pela AIMA.' },
+            { docName: 'Requerimento de Igualdade', whereToGet: 'Submetido online ou via Conservatória.' }
+        ],
+        faq: [{ q: 'Dá direito a passaporte?', a: 'Não. O Estatuto não concede nacionalidade, apenas igualdade de direitos civis/políticos.' }]
+    },
+    {
+        id: 'g_direitos_politicos', category: CATEGORIES.RIGHTS, title: 'Direitos Iguais e Direitos Políticos', authority: 'IRN / CNE',
+        description: 'Votar e ser eleito em Portugal (para estrangeiros sob reciprocidade).',
+        explanation: 'Migrantes de países com acordos de reciprocidade (Brasil, Cabo Verde, etc.) podem votar nas eleições autárquicas após certo tempo de residência.',
+        steps: [
+            { docName: 'Recenseamento Eleitoral', whereToGet: 'Automático para portadores de CC ou via Comissão de Recenseamento.' },
+            { docName: 'Declaração de Opção', whereToGet: 'Apenas necessária em casos específicos de múltiplas nacionalidades.' }
+        ],
+        faq: [{ q: 'Quando posso votar?', a: 'Depende da nacionalidade. Brasileiros com Estatuto de Direitos Políticos e outros com 2-5 anos de residência.' }]
     }
 ];

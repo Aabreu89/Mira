@@ -45,15 +45,15 @@ export const MIRA_LOGO = (
 );
 
 export const PREDEFINED_AVATARS = [
-  // Existentes
+  // Grupo 1: Diversos (22 originais)
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1763757321162-95c0de309d22?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1624395213043-fa2e123b2656?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
@@ -68,36 +68,47 @@ export const PREDEFINED_AVATARS = [
   "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=400&h=400&fit=crop",
-  // Árabes
+  // Grupo 2: Árabes (3)
   "https://images.unsplash.com/photo-1576558656222-ba66febe3dec?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1618498082410-b4aa22193b9e?w=400&h=400&fit=crop",
-  // Asiáticos
+  "https://images.unsplash.com/photo-1510832198440-a52376950479?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&h=400&fit=crop",
+  // Grupo 3: Asiáticos (7)
   "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1542206395-9feb3edaa68d?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1520333789090-1afc82db536a?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1474176857210-7287d38d27c6?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1491349174775-aaaefdd81942?w=400&h=400&fit=crop",
-  // Indígenas / Latino-Americanos
+  "https://images.unsplash.com/photo-1621390890561-48f5afc3be21?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1668536681456-817e4a575c6e?w=400&h=400&fit=crop",
+  // Grupo 4: Indígenas / Latino-Americanos (5)
   "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1610216705422-caa3fcb6d158?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop",
-  // Indianos
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&seed=ind1",
+  "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1563237023-b1e970526dcb?w=400&h=400&fit=crop",
+  // Grupo 5: Indianos (4)
+  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1628157588553-5eeea00af15c?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1589156228580-8cf37e2e3237?w=400&h=400&fit=crop",
-  // Latinos
-  "https://images.unsplash.com/photo-1595956553066-fe24a8c33395?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?w=400&h=400&fit=crop",
+  // Grupo 6: Latinos (5)
+  "https://images.unsplash.com/photo-1657773558233-e7b245d59bf5?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=400&h=400&fit=crop",
-  // Europeus (eslavos, mediterrânicos, nórdicos)
+  "https://images.unsplash.com/photo-1512485694743-9c9538b4e6e0?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1653129305118-3c5b26df576c?w=400&h=400&fit=crop",
+  // Grupo 7: Europeus (6)
   "https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1505033575518-a36ea2ef75ae?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1543165365-07232ed12fad?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=400&fit=crop",
-  // Negros / Africanos
-  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop",
-  "https://images.unsplash.com/photo-1574701148212-8518049c7b2c?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1550525811-e5869dd03032?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1558222218-b7b54eede3f3?w=400&h=400&fit=crop",
+  // Grupo 8: Negros / Africanos (6)
+  "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1618559850638-2aed8a8e8cdc?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1589156288859-f0cb0d82b065?w=400&h=400&fit=crop",
   "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1651684215020-f7a5b6610f23?w=400&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1579420593648-0deba81fd762?w=400&h=400&fit=crop",
 ];
